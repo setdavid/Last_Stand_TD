@@ -4,20 +4,14 @@ import java.awt.Graphics;
 public class Tile {
     private final int px;
     private final int py;
-    private final int row;
-    private final int col;
     private final int size;
     private final String type;
     private final Color color;
     private Entity entity = null;
     
-    private PFNode node;
-    
     public Tile (int px, int py, int row, int col, int size, String type) {
         this.px = px;
         this.py = py;
-        this.row = row;
-        this.col = col;
         this.size = size;
         this.type = type;
         
@@ -27,9 +21,12 @@ public class Tile {
             this.color = Color.white;
         }
         
-        this.node = new PFNode(row, col);
     }
 
+    public String getType() {
+        return this.type;
+    }
+    
     public Entity getEntity() {
         return this.entity;
     };
