@@ -1,17 +1,25 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class Tile {
+public class Tile extends PFNode{
     private final int px;
     private final int py;
+    
     private final int size;
     private final String type;
     private final Color color;
+    
+    
     private Entity entity = null;
     
+//    private PFNode pfNode;
+    
     public Tile (int px, int py, int row, int col, int size, String type) {
+        super(row, col);
+        
         this.px = px;
         this.py = py;
+        
         this.size = size;
         this.type = type;
         
@@ -21,6 +29,18 @@ public class Tile {
             this.color = Color.white;
         }
         
+    }
+    
+    public int getPx() {
+        return this.px;
+    }
+    
+    public int getPy() {
+        return this.py;
+    }
+    
+    public int getSize() {
+        return this.size;
     }
 
     public String getType() {
