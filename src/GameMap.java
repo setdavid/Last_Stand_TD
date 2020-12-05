@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.swing.*;
 
@@ -19,7 +22,9 @@ public class GameMap extends JPanel {
     private Tile[][] tileMap;
     private static final int TILE_SIZE = MAP_SIZE / ARRAY_SIZE;
 
-    private Collection<LinkedList<Tile>> paths = null;
+    private Map<Integer, LinkedList<Tile>> paths = null;
+
+    private BasicEnemy enemyTest;
 
     public GameMap() {
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
@@ -53,7 +58,7 @@ public class GameMap extends JPanel {
         startNodes[1] = tileMap[0][re1];
         startNodes[2] = tileMap[re2][0];
 
-        HashSet<LinkedList<Tile>> paths = findPaths(startNodes, tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
+        TreeMap<Integer, LinkedList<Tile>> paths = findPaths(startNodes, tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
 
         if (paths == null) {
             reset();
@@ -61,6 +66,39 @@ public class GameMap extends JPanel {
             this.paths = paths;
             repaint();
         }
+
+//        this.enemyTest = new BasicEnemy(MAP_SIZE, this.paths.);
+
+        requestFocusInWindow();
+    }
+
+    private void startTimer(int interval) {
+        Timer timer = new Timer(interval, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                tick();
+            }
+        });
+        timer.start();
+
+        setFocusable(true);
+    }
+
+    private void tick() {
+////        if (playing) {
+//            square.move();
+//            snitch.move();
+//
+//            // check for the game end conditions
+//            if (square.intersects(poison)) {
+//                playing = false;
+//                status.setText("You lose!");
+//            } else if (square.intersects(snitch)) {
+//                playing = false;
+//                status.setText("You win!");
+//            }
+//
+//            repaint();
+////        }
     }
 
     public int randomEntrance() {
@@ -76,15 +114,15 @@ public class GameMap extends JPanel {
         return path;
     }
 
-    public HashSet<LinkedList<Tile>> findPaths(Tile[] startNodes, Tile targetNode) {
-        HashSet<LinkedList<Tile>> paths = new HashSet<LinkedList<Tile>>();
+    public TreeMap<Integer, LinkedList<Tile>> findPaths(Tile[] startNodes, Tile targetNode) {
+        TreeMap<Integer, LinkedList<Tile>> paths = new TreeMap<Integer, LinkedList<Tile>>();
         boolean nullList = false;
 
         for (int i = 0; i < startNodes.length; i++) {
             LinkedList<Tile> path = findPath(startNodes[i], targetNode);
 
             if (path != null) {
-                paths.add(path);
+                paths.put(i, path);
             } else {
                 nullList = true;
             }
@@ -114,14 +152,15 @@ public class GameMap extends JPanel {
 
         while (iterator.hasNext()) {
             Tile t = iterator.next();
-            g.fillRect(t.getPx(), t.getPy(), t.getSize() - 10, t.getSize() - 10);
+            g.fillRect((int) (t.getPx() + 0.25 * t.getSize()), (int) (t.getPy() + 0.25 * t.getSize()),
+                    (int) (0.5 * t.getSize()), (int) (0.5 * t.getSize()));
         }
 
     }
 
-    public void drawPaths(Graphics g, Collection<LinkedList<Tile>> paths) {
-        for (LinkedList<Tile> path : paths) {
-            drawPath(g, path);
+    public void drawPaths(Graphics g, Map<Integer, LinkedList<Tile>> paths) {
+        for (Entry e : paths.entrySet()) {
+            drawPath(g, (LinkedList<Tile>) e.getValue());
         }
     }
 
@@ -129,7 +168,7 @@ public class GameMap extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawTiles(g);
-        drawPaths(g, paths);
+        drawPaths(g, this.paths);
     }
 
     @Override

@@ -1,6 +1,6 @@
 import java.awt.Graphics;
 
-public abstract class Entity {
+public abstract class GameObj {
     /*
      * Current position of the object (in terms of graphics coordinates)
      * 
@@ -25,15 +25,10 @@ public abstract class Entity {
     private int maxX;
     private int maxY;
 
-    private int hp;
-    private int damage;
-    private int range;
-    
     /**
      * Constructor
      */
-    public Entity(int vx, int vy, int px, int py, int width, int height, int mapSize, 
-            int hp, int damage, int range) {
+    public GameObj(int vx, int vy, int px, int py, int width, int height, int mapSize) {
         this.vx = vx;
         this.vy = vy;
         this.px = px;
@@ -104,7 +99,7 @@ public abstract class Entity {
      * for the object. (i.e. Object cannot go outside of the active area the user
      * defines for it).
      */
-    private void clip() {
+    public void clip() {
         this.px = Math.min(Math.max(this.px, 0), this.maxX);
         this.py = Math.min(Math.max(this.py, 0), this.maxY);
     }
@@ -129,7 +124,7 @@ public abstract class Entity {
      * @param that The other object
      * @return Whether this object intersects the other object.
      */
-    public boolean intersects(Entity that) {
+    public boolean intersects(GameObj that) {
         return (this.px + this.width >= that.px && this.py + this.height >= that.py && that.px + that.width >= this.px
                 && that.py + that.height >= this.py);
     }
@@ -145,7 +140,7 @@ public abstract class Entity {
      * @param that The other object
      * @return Whether an intersection will occur.
      */
-    public boolean willIntersect(Entity that) {
+    public boolean willIntersect(GameObj that) {
         int thisNextX = this.px + this.vx;
         int thisNextY = this.py + this.vy;
         int thatNextX = that.px + that.vx;
@@ -215,7 +210,7 @@ public abstract class Entity {
      * @param that The other object
      * @return Direction of impending object, null if all clear.
      */
-    public Direction hitObj(Entity that) {
+    public Direction hitObj(GameObj that) {
         if (this.willIntersect(that)) {
             double dx = that.px + that.width / 2 - (this.px + this.width / 2);
             double dy = that.py + that.height / 2 - (this.py + this.height / 2);
@@ -240,8 +235,13 @@ public abstract class Entity {
         }
     }
     
-    public abstract boolean detectEnemy(Entity e);
-
+    public static int[] centerCoords(int px, int py, int width, int height) {
+        int[] coords = new int[2];
+        coords[0] = (int) (0.5 * width + px);
+        coords[1] = (int) (0.5 * height + px);
+        return coords;
+    }
+    
     /**
      * Default draw method that provides how the object should be drawn in the GUI.
      * This method does not draw anything. Subclass should override this method

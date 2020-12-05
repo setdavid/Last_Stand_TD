@@ -9,8 +9,7 @@ public class Tile extends PFNode{
     private final String type;
     private final Color color;
     
-    
-    private Entity entity = null;
+    private Tower tower = null;
     
 //    private PFNode pfNode;
     
@@ -47,16 +46,16 @@ public class Tile extends PFNode{
         return this.type;
     }
     
-    public Entity getEntity() {
-        return this.entity;
+    public Tower getTower() {
+        return this.tower;
     };
     
-    public void setEntity(Entity entity) {
-        this.entity = entity;
+    public void setTower(Tower tower) {
+        this.tower = tower;
     };
     
-    public void removeEntity() {
-      this.entity = null; 
+    public void removeTower() {
+      this.tower = null; 
     };
     
     public void draw(Graphics g) {

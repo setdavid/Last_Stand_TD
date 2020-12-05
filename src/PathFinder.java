@@ -298,33 +298,31 @@ public class PathFinder {
         }
     }
 
-    public static void main(String[] args) {
-        int ARRAY_SIZE = 10;
+//    public static void main(String[] args) {
+//        int ARRAY_SIZE = 10;
+//
+//        int TILE_SIZE = 10;
+//
+//        Tile[][] tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
+//
+//        for (int r = 0; r < tileMap.length; r++) {
+//            for (int c = 0; c < tileMap[0].length; c++) {
+//                String type;
+//                if (Math.random() <= 0.1) {
+//                    type = "block";
+//                } else {
+//                    type = "open";
+//                }
+//
+//                tileMap[r][c] = new Tile(c * TILE_SIZE, r * TILE_SIZE, r, c, TILE_SIZE, type);
+//            }
+//        }
+//
+//      
+//        PathFinder pf = new PathFinder(tileMap, tileMap[0][0], tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
+//        pf.loop();
+//        pf.printPath();
+//        pf.reset();
+//    }
 
-        int TILE_SIZE = 10;
-
-        Tile[][] tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
-
-        for (int r = 0; r < tileMap.length; r++) {
-            for (int c = 0; c < tileMap[0].length; c++) {
-                String type;
-                if (Math.random() <= 0.1) {
-                    type = "block";
-                } else {
-                    type = "open";
-                }
-
-                tileMap[r][c] = new Tile(c * TILE_SIZE, r * TILE_SIZE, r, c, TILE_SIZE, type);
-            }
-        }
-
-      
-        PathFinder pf = new PathFinder(tileMap, tileMap[0][0], tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
-        pf.loop();
-        pf.printPath();
-        pf.reset();
-
-//        LinkedList<LinkedList<Tile>> paths = findPaths(startNodes, tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
-    }
-    
 }
