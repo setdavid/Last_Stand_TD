@@ -1,15 +1,20 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public abstract class Enemy extends GameObj {
+public abstract class Enemy extends GameObj implements Comparable<Enemy> {
     private int hp;
     private int speed;
 
-    private Iterator<Tile> path;
+    private LinkedList<Tile> path;
+    private Iterator<Tile> iterator;
+    
     private Tile currTarget;
     private Direction direction;
+    private double progress;
+    private double progressIncr;
 
     public Enemy(int speed, int width, int height, int hp, int mapSize, LinkedList<Tile> path) {
         super(0, 0, 0, 0, width, height, mapSize);
@@ -17,31 +22,72 @@ public abstract class Enemy extends GameObj {
         this.hp = hp;
         this.speed = speed;
 
-        this.path = path.listIterator();
-        this.currTarget = this.path.next();
+        this.path = path;
+        this.iterator = path.listIterator();
+        this.currTarget = this.iterator.next();
 
-        this.setPx((int) (currTarget.getPx() + 0.5 * (currTarget.getSize() - width)));
-        this.setPy((int) (currTarget.getPy() + 0.5 * (currTarget.getSize() - height)));
+        this.progress = 0;
+        this.progressIncr = 1.0 / path.size();
+        incrementProgress();
 
-        advancePath();
+        GameObj.positionToCenter(this, this.currTarget);
+
+//        System.out.println("FirstTile: " + currTarget.getCol() + ", " + currTarget.getRow());
+//        System.out.println("First: " + this.getPx() + ", " + this.getPy());
+
+//        advancePath();
+    }
+
+    private void incrementProgress() {
+        this.progress += this.progressIncr;
+//        System.out.println("Speed: " + this.speed);
+//        System.out.println("Progress: " + this.progress);
+    }
+
+    public double getProgress() {
+        return this.progress;
+    }
+
+    public int getSpeed() {
+        return this.speed;
+    }
+
+    public LinkedList<Tile> getPath() {
+        return this.path;
     }
 
     public void checkAdvance() {
         int[] ccThis = GameObj.centerCoords(this.getPx(), this.getPy(), this.getWidth(), this.getHeight());
         int[] ccTarget = GameObj.centerCoords(currTarget.getPx(), currTarget.getPy(), currTarget.getSize(),
                 currTarget.getSize());
+        boolean allowAdvance = false;
 
-        if (((direction == Direction.UP) && (ccThis[1] <= ccTarget[1]))
-                || ((direction == Direction.DOWN) && (ccThis[1] >= ccTarget[1]))
-                || ((direction == Direction.LEFT) && (ccThis[0] <= ccTarget[0]))
-                || ((direction == Direction.RIGHT) && (ccThis[0] >= ccTarget[0]))) {
+//        System.out.println("TargetTile: " + currTarget.getCol() + ", " + currTarget.getRow());
+//        System.out.println("Target: " + ccTarget[0] + ", " + ccTarget[1]);
+
+        if ((direction == Direction.UP) && (ccThis[1] <= ccTarget[1])) {
+            allowAdvance = true;
+            this.setPy(this.getPy() + (ccTarget[1] - ccThis[1]));
+        } else if ((direction == Direction.DOWN) && (ccThis[1] >= ccTarget[1])) {
+            allowAdvance = true;
+            this.setPy(this.getPy() - (ccThis[1] - ccTarget[1]));
+        } else if ((direction == Direction.LEFT) && (ccThis[0] <= ccTarget[0])) {
+            allowAdvance = true;
+            this.setPx(this.getPx() + (ccTarget[0] - ccThis[0]));
+        } else if ((direction == Direction.RIGHT) && (ccThis[0] >= ccTarget[0])) {
+            allowAdvance = true;
+            this.setPx(this.getPx() - (ccThis[0] - ccTarget[0]));
+        }
+
+        if (allowAdvance) {
             advancePath();
         }
+
     }
 
     public void advancePath() {
-        if (path.hasNext()) {
-            Tile nextTarget = path.next();
+        if (this.iterator.hasNext()) {
+            Tile nextTarget = this.iterator.next();
 
             if (nextTarget.getRow() == currTarget.getRow()) {
                 if (nextTarget.getCol() > currTarget.getCol()) {
@@ -66,6 +112,7 @@ public abstract class Enemy extends GameObj {
             }
 
             currTarget = nextTarget;
+            incrementProgress();
         }
     }
 
@@ -79,7 +126,43 @@ public abstract class Enemy extends GameObj {
         clip();
     }
 
-    public void takeDamage(Damage damage) {
-        this.hp -= damage.getDamage();
+//    @Override
+//    public boolean equals(Object that) {
+//        if (that == null) {
+//            return this == null;
+//        } else {
+//            if (that instanceof Enemy) {
+//                Enemy other = (Enemy) that;
+//                return this == other;
+////                return ((this.iterator.equals(other.iterator)) && (this.progress == other.getProgress())
+////                        && (this.speed == other.getSpeed()));
+//            } else {
+//                return false;
+//            }
+//        }
+//    }
+    
+    @Override
+    public int compareTo(Enemy e2) {
+        double e1P = this.progress;
+        double e2P = e2.getProgress();
+        
+        if (e1P == e2P) {
+//            System.out.println("found equal");
+            return 0;
+        } else if (e1P > e2P) {
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+    public void takeDamage(int damage) {
+        System.out.println("Speed: " + this.speed + ", " + "HP: " + this.hp);
+        this.hp -= damage;
+    }
+
+    public boolean isDead() {
+        return this.hp <= 0;
     }
 }

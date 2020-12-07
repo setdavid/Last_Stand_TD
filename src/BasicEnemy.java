@@ -3,19 +3,21 @@ import java.awt.Graphics;
 import java.util.LinkedList;
 
 public class BasicEnemy extends Enemy {
-    public static final int SPEED = 10;
-    public static final int WIDTH = 400;
-    public static final int HEIGHT = 400;
-    public static final int HP = 10;
+    public static final int WIDTH = 20;
+    public static final int HEIGHT = 20;
+    private Color color;
+//    public static final int SPEED = 2;
+//    public static final int HP = 10;
     
-    public BasicEnemy(int mapSize, LinkedList<Tile> path) {
-        super(SPEED, WIDTH, HEIGHT, HP, mapSize, path);
+    public BasicEnemy(int speed, int hp, Color color, LinkedList<Tile> path, int mapSize) {
+        super(speed, WIDTH, HEIGHT, hp, mapSize, path);
+        this.color = color;
     }
 
     @Override
     public void draw(Graphics g) {
-        g.setColor(Color.RED);
-        g.fillRect(this.getPx(), this.getPy(), WIDTH, HEIGHT);
+        g.setColor(this.color);
+        g.fillOval(this.getPx(), this.getPy(), WIDTH, HEIGHT);
     }
 
 }

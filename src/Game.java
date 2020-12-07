@@ -12,7 +12,7 @@ public class Game implements Runnable {
 
         // Top-level frame in which game components live
         final JFrame frame = new JFrame("Last Stand TD");
-        frame.setLocation(0, 0);
+        frame.setLocation(500, 0);
 
         // Main playing area
         final GameMap gameMap = new GameMap();

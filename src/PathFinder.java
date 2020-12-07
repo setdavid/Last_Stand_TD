@@ -61,27 +61,32 @@ public class PathFinder {
                 + Math.pow(Math.abs(node.getRow() - targetNode.getRow()), 2));
     }
 
-    public void loop() {
-        Tile currentNode = lowestFScoreSearch();
+    public void startPF() {
+        boolean continueLoop = true;
+        while (!openSet.isEmpty() && continueLoop) {
+            Tile currentNode = lowestFScoreSearch();
 
-        if (currentNode == null) {
-            failure("interrupted");
-        } else {
-            openSet.remove(currentNode);
-            closedSet.add(currentNode);
-
-            if (currentNode == targetNode) {
-                this.resultingPath = reconstructPath(startNode, currentNode);
+            if (currentNode == null) {
+                continueLoop = false;
+                failure("interrupted");
             } else {
-                analyzeNeighbors(currentNode, targetNode, MOVEMENT_TYPE, CUT_CORNERS);
+                openSet.remove(currentNode);
+                closedSet.add(currentNode);
 
-                if (!openSet.isEmpty()) {
-                    loop();
+                if (currentNode == targetNode) {
+                    continueLoop = false;
+                    this.resultingPath = reconstructPath(startNode, currentNode);
                 } else {
-                    failure("no path");
+                    analyzeNeighbors(currentNode, targetNode, MOVEMENT_TYPE, CUT_CORNERS);
+
+                    if (openSet.isEmpty()) {
+                        continueLoop = false;
+                        failure("no path");
+                    }
                 }
             }
         }
+
     }
 
     private Tile lowestFScoreSearch() {
@@ -252,9 +257,13 @@ public class PathFinder {
         Tile targetNode = currentNode;
 
         while (currentNode != startNode) {
-            reconstructUpdate(currentNode, totalPath);
+            if (currentNode != null) {
+                reconstructUpdate(currentNode, totalPath);
 
-            currentNode = currentNode.getCameFrom();
+                currentNode = currentNode.getCameFrom();
+            } else {
+                return resultingPath = null;
+            }
         }
 
         reconstructUpdate(currentNode, totalPath);
@@ -285,16 +294,16 @@ public class PathFinder {
         return this.resultingPath;
     }
 
-    public void printPath() {
-        if (resultingPath != null) {
-            Iterator<Tile> iterator = resultingPath.listIterator();
+    public static void printPath(LinkedList<Tile> path) {
+        if (path != null) {
+            Iterator<Tile> iterator = path.listIterator();
 
             while (iterator.hasNext()) {
                 Tile t = iterator.next();
                 System.out.println("(" + t.getCol() + ", " + t.getRow() + ")");
             }
         } else {
-            System.out.println("Null");
+            System.out.println("Null Path");
         }
     }
 

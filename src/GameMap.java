@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.swing.*;
@@ -17,14 +18,18 @@ public class GameMap extends JPanel {
 
     public static final int MAP_SIZE = 750;
     public static final double BLOCK_PROB = 0.3;
-    public static final int ARRAY_SIZE = 30;
+    public static final int ARRAY_SIZE = 25;
 
     private Tile[][] tileMap;
     private static final int TILE_SIZE = MAP_SIZE / ARRAY_SIZE;
 
     private Map<Integer, LinkedList<Tile>> paths = null;
+    private boolean SHOW_PATHS = true;
 
-    private BasicEnemy enemyTest;
+    private HashSet<Tower> towers;
+    private HashSet<Enemy> enemies;
+    private LinkedList<Enemy> enemyQueue;
+    private LinkedList<HashSet<Projectile>> projectiles;
 
     public GameMap() {
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
@@ -64,12 +69,38 @@ public class GameMap extends JPanel {
             reset();
         } else {
             this.paths = paths;
+
+            this.towers = new HashSet<Tower>();
+            this.enemies = new HashSet<Enemy>();
+            this.enemyQueue = new LinkedList<Enemy>();
+            this.projectiles = new LinkedList<HashSet<Projectile>>();
+
+            Enemy enemyTest = new BasicEnemy(10, 10, Color.RED, this.paths.get(0), MAP_SIZE);
+            Enemy enemyTest2 = new BasicEnemy(10, 10, Color.BLUE, this.paths.get(0), MAP_SIZE);
+            Enemy enemyTest3 = new BasicEnemy(5, 10, Color.YELLOW, this.paths.get(0), MAP_SIZE);
+
+            enqEnemyQueue(enemyTest);
+            enqEnemyQueue(enemyTest2);
+            enqEnemyQueue(enemyTest3);
+
+            ShooterTower towerTest1 = new ShooterTower(tileMap[ARRAY_SIZE - 2][ARRAY_SIZE - 2], MAP_SIZE);
+            ShooterTower towerTest2 = new ShooterTower(tileMap[1][ARRAY_SIZE - 3], MAP_SIZE);
+            ShooterTower towerTest3 = new ShooterTower(tileMap[1][ARRAY_SIZE - 10], MAP_SIZE);
+
+            this.towers.add(towerTest1);
+            this.towers.add(towerTest2);
+            this.towers.add(towerTest3);
+
+            this.projectiles.add(towerTest2.getProjs());
+            this.projectiles.add(towerTest1.getProjs());
+            this.projectiles.add(towerTest3.getProjs());
+
+            startTimer(60);
+
+            setFocusable(true);
+            requestFocusInWindow();
             repaint();
         }
-
-//        this.enemyTest = new BasicEnemy(MAP_SIZE, this.paths.);
-
-        requestFocusInWindow();
     }
 
     private void startTimer(int interval) {
@@ -79,26 +110,113 @@ public class GameMap extends JPanel {
             }
         });
         timer.start();
-
-        setFocusable(true);
     }
 
     private void tick() {
-////        if (playing) {
-//            square.move();
-//            snitch.move();
-//
-//            // check for the game end conditions
-//            if (square.intersects(poison)) {
-//                playing = false;
-//                status.setText("You lose!");
-//            } else if (square.intersects(snitch)) {
-//                playing = false;
-//                status.setText("You win!");
-//            }
-//
-//            repaint();
-////        }
+//        if (playing) {
+        if (towers != null && enemies != null) {
+            for (Tower tower : towers) {
+                if (tower instanceof AttackTower) {
+                    AttackTower aTower = (AttackTower) tower;
+                    aTower.towerEngage(enemies);
+                }
+            }
+        }
+
+        if (enemies != null) {
+            LinkedList<Enemy> removeEnemies = new LinkedList<Enemy>();
+
+            boolean addNewEnemy = true;
+            Enemy nextEnemy = null;
+            Tile lookupTile = null;
+
+            if (!enemyQueue.isEmpty()) {
+                nextEnemy = enemyQueue.getFirst();
+                lookupTile = nextEnemy.getPath().getFirst();
+            }
+
+            for (Enemy enemy : enemies) {
+                enemy.move();
+
+                if (enemy.isDead()) {
+                    removeEnemies.add(enemy);
+                }
+
+                if (lookupTile != null) {
+                    if (lookupTile.objWithinTile(enemy)) {
+                        addNewEnemy = false;
+                    }
+                }
+            }
+
+            for (Enemy enemy : removeEnemies) {
+                enemies.remove(enemy);
+//                System.out.println(enemies.remove(enemy));
+            }
+
+            if (lookupTile != null && nextEnemy != null && addNewEnemy) {
+//                System.out.println("Contains: " + enemies.contains(nextEnemy));
+                enemies.add(deqEnemyQueue());
+//                System.out.println("EQ: " + enemyQueue.size());
+//                System.out.println("Enemies: " + enemies.size());
+            }
+        }
+
+        if (projectiles != null) {
+            int tracker = 1;
+
+            for (HashSet<Projectile> group : projectiles) {
+//                System.out.println(tracker + ": " + group.size());
+//                System.out.println("Num in proj: " + projectiles.size());
+
+                if (group != null) {
+                    LinkedList<Projectile> removeProjs = new LinkedList<Projectile>();
+
+                    for (Projectile p : group) {
+                        p.move();
+//                        p.hitEnemy(p.getTarget());
+
+                        for (Enemy enemy : enemies) {
+                            if (p.hitEnemy(enemy) || p.outOfBounds()) {
+                                removeProjs.add(p);
+                            }
+                        }
+                    }
+
+                    if (!removeProjs.isEmpty()) {
+                        for (Projectile p : removeProjs) {
+                            group.remove(p);
+                        }
+                    }
+                }
+
+                tracker++;
+            }
+        }
+
+        // check for the game end conditions
+//        if (square.intersects(poison)) {
+//            playing = false;
+//            status.setText("You lose!");
+//        } else if (square.intersects(snitch)) {
+//            playing = false;
+//            status.setText("You win!");
+//        }
+
+        repaint();
+//        }
+    }
+
+    public void enqEnemyQueue(Enemy enemy) {
+        this.enemyQueue.addLast(enemy);
+    }
+
+    public Enemy deqEnemyQueue() {
+        Enemy enemy = this.enemyQueue.getFirst();
+        this.enemyQueue.remove(enemy);
+        enemies.add(enemy);
+        enemy.advancePath();
+        return enemy;
     }
 
     public int randomEntrance() {
@@ -107,9 +225,8 @@ public class GameMap extends JPanel {
 
     public LinkedList<Tile> findPath(Tile startNode, Tile targetNode) {
         PathFinder pf = new PathFinder(tileMap, startNode, targetNode);
-        pf.loop();
+        pf.startPF();
         LinkedList<Tile> path = pf.getResultingPath();
-        pf.printPath();
         pf.reset();
         return path;
     }
@@ -133,12 +250,17 @@ public class GameMap extends JPanel {
             return null;
         } else {
             System.out.println("found paths!");
+
+//            for (int i = 0; i < paths.size(); i++) {
+//                PathFinder.printPath(paths.get(i));
+//            }
+
             return paths;
         }
 
     }
 
-    public void drawTiles(Graphics g) {
+    private void drawTiles(Graphics g) {
         for (int r = 0; r < tileMap.length; r++) {
             for (int c = 0; c < tileMap[0].length; c++) {
                 tileMap[r][c].draw(g);
@@ -146,19 +268,21 @@ public class GameMap extends JPanel {
         }
     }
 
-    public void drawPath(Graphics g, LinkedList<Tile> path) {
+    private void drawPath(Graphics g, LinkedList<Tile> path) {
         g.setColor(Color.GREEN);
         Iterator<Tile> iterator = path.listIterator();
 
         while (iterator.hasNext()) {
             Tile t = iterator.next();
-            g.fillRect((int) (t.getPx() + 0.25 * t.getSize()), (int) (t.getPy() + 0.25 * t.getSize()),
-                    (int) (0.5 * t.getSize()), (int) (0.5 * t.getSize()));
+            int pathSize = (int) (0.5 * t.getSize());
+
+            g.fillRect((int) (t.getPx() + 0.5 * (t.getSize() - pathSize)),
+                    (int) (t.getPy() + 0.5 * (t.getSize() - pathSize)), pathSize, pathSize);
         }
 
     }
 
-    public void drawPaths(Graphics g, Map<Integer, LinkedList<Tile>> paths) {
+    private void drawPaths(Graphics g, Map<Integer, LinkedList<Tile>> paths) {
         for (Entry e : paths.entrySet()) {
             drawPath(g, (LinkedList<Tile>) e.getValue());
         }
@@ -168,7 +292,42 @@ public class GameMap extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawTiles(g);
-        drawPaths(g, this.paths);
+
+        if (SHOW_PATHS) {
+            drawPaths(g, this.paths);
+        }
+
+        if (enemies != null) {
+            if (!enemies.isEmpty()) {
+//                System.out.println("Enemies size: " + enemies.size());
+                for (Enemy enemy : enemies) {
+                    enemy.draw(g);
+                }
+            }
+        }
+
+        if (projectiles != null) {
+            if (!projectiles.isEmpty()) {
+                for (HashSet<Projectile> group : projectiles) {
+                    if (group != null) {
+                        if (!group.isEmpty()) {
+//                            System.out.println("Proj size: " + group.size());
+                            for (Projectile p : group) {
+//                                System.out.println("Proj pos: " + p.getPx() + ", " + p.getPy());
+                                p.draw(g);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (towers != null && enemies != null) {
+            for (Tower tower : towers) {
+                tower.draw(g);
+            }
+        }
+
     }
 
     @Override

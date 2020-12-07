@@ -14,6 +14,8 @@ public abstract class GameObj {
     private int width;
     private int height;
 
+    private int mapSize;
+
     /* Velocity: number of pixels to move every time move() is called. */
     private int vx;
     private int vy;
@@ -33,10 +35,13 @@ public abstract class GameObj {
         this.vy = vy;
         this.px = px;
         this.py = py;
-        this.width  = width;
+        this.width = width;
         this.height = height;
 
-        // take the width and height into account when setting the bounds for the upper left corner
+        this.mapSize = mapSize;
+
+        // take the width and height into account when setting the bounds for the upper
+        // left corner
         // of the object.
         this.maxX = mapSize - width;
         this.maxY = mapSize - height;
@@ -69,17 +74,27 @@ public abstract class GameObj {
         return this.height;
     }
 
+    public int getMapSize() {
+        return this.mapSize;
+    }
+    
+    public int getMaxX() {
+        return this.maxX;
+    }
+    
+    public int getMaxY() {
+        return this.maxY;
+    }
+
     /***
      * SETTERS
      **********************************************************************************/
     public void setPx(int px) {
         this.px = px;
-        clip();
     }
 
     public void setPy(int py) {
         this.py = py;
-        clip();
     }
 
     public void setVx(int vx) {
@@ -234,14 +249,19 @@ public abstract class GameObj {
             return null;
         }
     }
-    
+
     public static int[] centerCoords(int px, int py, int width, int height) {
         int[] coords = new int[2];
         coords[0] = (int) (0.5 * width + px);
-        coords[1] = (int) (0.5 * height + px);
+        coords[1] = (int) (0.5 * height + py);
         return coords;
     }
-    
+
+    public static void positionToCenter(GameObj obj, Tile tile) {
+        obj.setPx((int) (tile.getPx() + 0.5 * (tile.getSize() - obj.getWidth())));
+        obj.setPy((int) (tile.getPy() + 0.5 * (tile.getSize() - obj.getHeight())));
+    }
+
     /**
      * Default draw method that provides how the object should be drawn in the GUI.
      * This method does not draw anything. Subclass should override this method
