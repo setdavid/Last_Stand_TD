@@ -4,7 +4,7 @@ import java.awt.Graphics;
 public class ShooterTower extends AttackTower {
     public static int INITIAL_COST = 100;
     public static int RANGE = 600;
-    public static int FIRE_INTERVAL = 1000;
+    public static int FIRE_INTERVAL = 100;
 
     private int damage;
     private int accuracy;

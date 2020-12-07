@@ -23,20 +23,43 @@ public class GameMap extends JPanel {
     private Tile[][] tileMap;
     private static final int TILE_SIZE = MAP_SIZE / ARRAY_SIZE;
 
+    private Timer mainTimer = null;
+    public static final int INTERVAL = 60;
+
+    private boolean playing;
+
+    private JLabel timer_label;
+    private Timer roundTimer;
+    private int timeRemaining;
+    public static final int TIME_BETWEEN_ROUNDS = 5000;
+    private JLabel round_label;
+    private int roundCount;
+    private boolean roundInProgress;
+
+    private JLabel coins_label;
+    private int coinCount;
+    private int coinRate;
+    private Timer coinTimer;
+
     private Map<Integer, LinkedList<Tile>> paths = null;
     private boolean SHOW_PATHS = true;
 
     private HashSet<Tower> towers;
+    private LinkedList<HashSet<Projectile>> projectiles;
     private HashSet<Enemy> enemies;
     private LinkedList<Enemy> enemyQueue;
-    private LinkedList<HashSet<Projectile>> projectiles;
 
-    public GameMap() {
+    public GameMap(JLabel round_label, JLabel timer_label, JLabel coins_label) {
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
+        this.timer_label = timer_label;
+        this.round_label = round_label;
+        this.coins_label = coins_label;
         reset();
     }
 
     public void reset() {
+        this.playing = false;
+
         int re1 = randomEntrance();
         int re2 = randomEntrance();
 
@@ -70,32 +93,73 @@ public class GameMap extends JPanel {
         } else {
             this.paths = paths;
 
+            if (this.mainTimer != null) {
+                this.mainTimer.stop();
+            }
+
+            if (this.roundTimer != null) {
+                this.roundTimer.stop();
+            }
+
+            if (this.coinTimer != null) {
+                this.coinTimer.stop();
+            }
+
+            this.mainTimer = new Timer(INTERVAL, new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    tick();
+                }
+            });
+
+            updateRounds(0);
+            updateTimer(0);
+            this.roundTimer = new Timer(1000, new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    decrTimeRemaining();
+                }
+            });
+
+            updateCoins(0);
+            this.coinRate = 10;
+            this.coinTimer = new Timer(1000, new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    incrCoins();
+                }
+            });
+
             this.towers = new HashSet<Tower>();
+            this.projectiles = new LinkedList<HashSet<Projectile>>();
             this.enemies = new HashSet<Enemy>();
             this.enemyQueue = new LinkedList<Enemy>();
-            this.projectiles = new LinkedList<HashSet<Projectile>>();
 
-            Enemy enemyTest = new BasicEnemy(10, 10, Color.RED, this.paths.get(0), MAP_SIZE);
-            Enemy enemyTest2 = new BasicEnemy(10, 10, Color.BLUE, this.paths.get(0), MAP_SIZE);
-            Enemy enemyTest3 = new BasicEnemy(5, 10, Color.YELLOW, this.paths.get(0), MAP_SIZE);
+            addTower(tileMap[ARRAY_SIZE - 2][ARRAY_SIZE - 2], "shooter");
+            addTower(tileMap[1][ARRAY_SIZE - 3], "shooter");
+            addTower(tileMap[1][ARRAY_SIZE - 10], "shooter");
 
-            enqEnemyQueue(enemyTest);
-            enqEnemyQueue(enemyTest2);
-            enqEnemyQueue(enemyTest3);
+//          Enemy enemyTest = new BasicEnemy(10, 10, Color.RED, this.paths.get(0), MAP_SIZE);
+//          Enemy enemyTest2 = new BasicEnemy(10, 10, Color.BLUE, this.paths.get(0), MAP_SIZE);
+//          Enemy enemyTest3 = new BasicEnemy(5, 10, Color.YELLOW, this.paths.get(0), MAP_SIZE);
+//
+//          enqEnemyQueue(enemyTest);
+//          enqEnemyQueue(enemyTest2);
+//          enqEnemyQueue(enemyTest3);
 
-            ShooterTower towerTest1 = new ShooterTower(tileMap[ARRAY_SIZE - 2][ARRAY_SIZE - 2], MAP_SIZE);
-            ShooterTower towerTest2 = new ShooterTower(tileMap[1][ARRAY_SIZE - 3], MAP_SIZE);
-            ShooterTower towerTest3 = new ShooterTower(tileMap[1][ARRAY_SIZE - 10], MAP_SIZE);
+//            ShooterTower towerTest1 = new ShooterTower(tileMap[ARRAY_SIZE - 2][ARRAY_SIZE - 2], MAP_SIZE);
+//            ShooterTower towerTest2 = new ShooterTower(tileMap[1][ARRAY_SIZE - 3], MAP_SIZE);
+//            ShooterTower towerTest3 = new ShooterTower(tileMap[1][ARRAY_SIZE - 10], MAP_SIZE);
+//
+//            this.towers.add(towerTest1);
+//            this.towers.add(towerTest2);
+//            this.towers.add(towerTest3);
 
-            this.towers.add(towerTest1);
-            this.towers.add(towerTest2);
-            this.towers.add(towerTest3);
+//            this.projectiles.add(towerTest2.getProjs());
+//            this.projectiles.add(towerTest1.getProjs());
+//            this.projectiles.add(towerTest3.getProjs());
 
-            this.projectiles.add(towerTest2.getProjs());
-            this.projectiles.add(towerTest1.getProjs());
-            this.projectiles.add(towerTest3.getProjs());
+            this.mainTimer.start();
 
-            startTimer(60);
+            // TEMPROARY!!
+            startGame();
 
             setFocusable(true);
             requestFocusInWindow();
@@ -103,17 +167,9 @@ public class GameMap extends JPanel {
         }
     }
 
-    private void startTimer(int interval) {
-        Timer timer = new Timer(interval, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                tick();
-            }
-        });
-        timer.start();
-    }
-
     private void tick() {
-//        if (playing) {
+        endRound();
+
         if (towers != null && enemies != null) {
             for (Tower tower : towers) {
                 if (tower instanceof AttackTower) {
@@ -204,7 +260,127 @@ public class GameMap extends JPanel {
 //        }
 
         repaint();
-//        }
+    }
+
+    public void startGame() {
+        if (!this.playing) {
+            this.playing = true;
+            startNextRound();
+        }
+    }
+
+    private void startNextRound() {
+        this.roundInProgress = true;
+        this.coinTimer.start();
+        int enemyCount = this.roundCount;
+        while (enemyCount > 0) {
+            enqEnemyQueue(chooseRandomEnemy());
+            enemyCount--;
+        }
+    }
+
+    private void endRound() {
+//        System.out.println("Round in progress" + roundInProgress);
+//        System.out.println("Enemy Queue Empty: " + this.enemyQueue.size());
+//        System.out.println("Enemies empty: " + this.enemies.size());
+
+        if (roundInProgress && this.enemyQueue.isEmpty() && this.enemies.isEmpty()) {
+//            System.out.println("============================================================================");
+            this.roundInProgress = false;
+            this.coinTimer.stop();
+            updateRounds(this.roundCount + 1);
+            updateTimer(TIME_BETWEEN_ROUNDS / 1000);
+            this.roundTimer.start();
+        }
+    }
+
+    private Enemy chooseRandomEnemy() {
+        double randomNum = Math.random();
+        if (randomNum <= 0.2) {
+            return new BasicEnemy(7, 50, Color.RED, chooseRandomPath(), MAP_SIZE);
+        } else if (randomNum > 0.2 && randomNum <= 0.5) {
+            return new BasicEnemy(5, 30, Color.BLUE, chooseRandomPath(), MAP_SIZE);
+        } else {
+            return new BasicEnemy(3, 10, Color.GREEN, chooseRandomPath(), MAP_SIZE);
+        }
+    }
+
+    private LinkedList<Tile> chooseRandomPath() {
+        double randomNum = Math.random();
+        if (randomNum <= (1.0 / 3.0)) {
+            return this.paths.get(1);
+        } else if (randomNum > (1.0 / 3.0) && randomNum <= (2.0 / 3.0)) {
+            return this.paths.get(2);
+        } else {
+            return this.paths.get(0);
+        }
+    }
+
+    private void updateCoins(int coins) {
+        this.coinCount = coins;
+        this.coins_label.setText("Coins: " + coins);
+        this.coins_label.repaint();
+    }
+
+    private void incrCoins() {
+        updateCoins(this.coinCount + this.coinRate);
+    }
+
+    private void updateRounds(int round) {
+        this.roundCount = round;
+        this.round_label.setText("Round: " + round);
+        this.coins_label.repaint();
+    }
+
+    private void updateTimer(int time) {
+        this.timeRemaining = time;
+        this.timer_label.setText("Next Round Starts in: " + time);
+        this.timer_label.repaint();
+    }
+
+    private void decrTimeRemaining() {
+        if (this.timeRemaining <= 0) {
+            this.roundTimer.stop();
+            startNextRound();
+        } else {
+            updateTimer(this.timeRemaining - 1);
+            System.out.println(this.timeRemaining);
+        }
+    }
+
+    public void addTower(Tile tile, String towerType) {
+        if (tile.getTower() == null && tile.getType() == "block") {
+            Tower tower = null;
+            switch (towerType) {
+            case "shooter":
+                tower = new ShooterTower(tile, MAP_SIZE);
+                break;
+            default:
+                break;
+            }
+
+            if (tower != null) {
+                tile.setTower(tower);
+                this.towers.add(tower);
+
+                if (tower instanceof AttackTower) {
+                    this.projectiles.add(((AttackTower) tower).getProjs());
+                }
+            }
+        }
+    }
+
+    public void removeTower(Tile tile) {
+        if (tile.getTower() != null) {
+            Tower tower = tile.getTower();
+
+            tile.setTower(null);
+            this.towers.remove(tower);
+
+            if (tower instanceof AttackTower) {
+                this.projectiles.remove(((AttackTower) tower).getProjs());
+            }
+        }
     }
 
     public void enqEnemyQueue(Enemy enemy) {

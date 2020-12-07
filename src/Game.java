@@ -14,18 +14,20 @@ public class Game implements Runnable {
         final JFrame frame = new JFrame("Last Stand TD");
         frame.setLocation(500, 0);
 
-        // Main playing area
-        final GameMap gameMap = new GameMap();
-        frame.add(gameMap, BorderLayout.CENTER);
-
         // Status
         final JPanel status_panel = new JPanel();
-        final JLabel round = new JLabel("Round");
-        final JLabel timer = new JLabel("Timer");
+        final JLabel round_label = new JLabel("Round: 0");
+        final JLabel coins_label = new JLabel("Coins: 0");
+        final JLabel timer_label = new JLabel("Next round starts in: 0");
 //        timer.setFont(new Font(timer.getFont().getName(), timer.getFont().getStyle(), 25));
-        status_panel.add(round);
-        status_panel.add(timer);
+        status_panel.add(round_label);
+        status_panel.add(timer_label);
+        status_panel.add(coins_label);
         frame.add(status_panel, BorderLayout.NORTH);
+
+        // Main playing area
+        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label);
+        frame.add(gameMap, BorderLayout.CENTER);
 
         // Game Control Panel
         final JPanel game_panel = new JPanel();
@@ -36,10 +38,9 @@ public class Game implements Runnable {
             }
         });
         game_panel.add(reset);
-
         frame.add(game_panel, BorderLayout.EAST);
 
-        // User Control Panel
+        // User High Score Panel
         final JPanel user_panel = new JPanel();
         frame.add(user_panel, BorderLayout.WEST);
 
