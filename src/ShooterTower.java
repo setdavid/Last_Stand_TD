@@ -4,7 +4,7 @@ import java.awt.Graphics;
 public class ShooterTower extends AttackTower {
     public static int INITIAL_COST = 100;
     public static int RANGE = 600;
-    public static int FIRE_INTERVAL = 100;
+    public static int FIRE_INTERVAL = 250;
 
     private int damage;
     private int accuracy;
@@ -12,8 +12,8 @@ public class ShooterTower extends AttackTower {
     public ShooterTower(int mapSize, Tile homeTile) {
         super(mapSize, homeTile, INITIAL_COST, RANGE, FIRE_INTERVAL);
 
-        this.damage = 2;
-        this.accuracy = 25;
+        this.damage = 5;
+        this.accuracy = 1000;
     }
 
     @Override

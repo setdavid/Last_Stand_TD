@@ -17,9 +17,11 @@ public class Game implements Runnable {
         // Info
         final JPanel info_panel = new JPanel();
         final JLabel info_label = new JLabel(" ");
-        final JButton info_button = new JButton(" ");
+        final JButton info_button_1 = new JButton(" ");
+        final JButton info_button_2 = new JButton(" ");
         info_panel.add(info_label);
-        info_panel.add(info_button);
+        info_panel.add(info_button_1);
+        info_panel.add(info_button_2);
 
         // Status
         final JPanel status_panel = new JPanel();
@@ -32,13 +34,14 @@ public class Game implements Runnable {
         status_panel.add(coins_label);
 
         // Main playing area
-        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label, info_label, info_button);
+        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label, info_label, info_button_1, info_button_2);
 
         // Game Control Panel
         final JPanel game_panel = new JPanel();
         final JButton addShooterTower = new JButton("Shooter Tower (" + ShooterTower.INITIAL_COST + ")");
         addShooterTower.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                gameMap.clearAllInfoButtons();
                 info_label.setText("Choose block to add shooter tower");
             }
         });
@@ -50,6 +53,7 @@ public class Game implements Runnable {
         final JButton reset = new JButton("Reset");
         reset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                gameMap.clearAllInfoButtons();
                 info_label.setText("RESET");
                 gameMap.reset();
             }

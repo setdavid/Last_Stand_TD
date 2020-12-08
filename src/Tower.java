@@ -23,6 +23,14 @@ public abstract class Tower extends GameObj {
     public Tile getHomeTile() {
         return this.homeTile;
     }
+    
+    public int getInitialCost() {
+        return this.initialCost;
+    }
+    
+    public int getUpgradeCost() {
+        return this.upgradeCost;
+    }
 
     public void setLevel(int level) {
         this.level = level;
@@ -54,12 +62,12 @@ public abstract class Tower extends GameObj {
                     }
                 }
 
-                return "SUCCESS";
+                return "UPGRADE SUCCESS";
             } else {
-                return "INSUFFICIENT";
+                return "INSUFFICIENT COINS";
             }
         } else {
-            return "MAX_LEVEL";
+            return "AT MAX_LEVEL";
         }
     }
 

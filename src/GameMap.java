@@ -25,7 +25,8 @@ public class GameMap extends JPanel {
 
     private Tile selectedTile = null;
     private JLabel info_label;
-    private JButton info_button;
+    private JButton info_button_1;
+    private JButton info_button_2;
 
     private Timer mainTimer = null;
     public static final int INTERVAL = 60;
@@ -55,11 +56,13 @@ public class GameMap extends JPanel {
     private HashSet<Enemy> enemies;
     private LinkedList<Enemy> enemyQueue;
 
-    public GameMap(JLabel round_label, JLabel timer_label, JLabel coins_label, JLabel info_label, JButton info_button) {
+    public GameMap(JLabel round_label, JLabel timer_label, JLabel coins_label, JLabel info_label, JButton info_button_1,
+            JButton info_button_2) {
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
 
         this.info_label = info_label;
-        this.info_button = info_button;
+        this.info_button_1 = info_button_1;
+        this.info_button_2 = info_button_2;
 
         this.timer_label = timer_label;
         this.round_label = round_label;
@@ -70,7 +73,7 @@ public class GameMap extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 Point p = e.getPoint();
 
-                selectTile(tileMap[p.y / TILE_SIZE][p.x / TILE_SIZE]);
+                selectTile(tileMap[p.y / TILE_SIZE][p.x / TILE_SIZE], "");
 //                System.out.println("SelectedTile: " + selectedTile.getCol() + ", " + selectedTile.getRow());
 //                System.out.println("SelectedTile: " + selectedTile.getType());
 
@@ -276,30 +279,76 @@ public class GameMap extends JPanel {
         repaint();
     }
 
-    public void selectTile(Tile tile) {
-        this.selectedTile = tile;
+    public void clearAllInfoButtons() {
+        info_button_1.setText(" ");
+        for (ActionListener actionListener : this.info_button_1.getActionListeners()) {
+            this.info_button_1.removeActionListener(actionListener);
+        }
+        info_button_2.setText(" ");
+        for (ActionListener actionListener : this.info_button_2.getActionListeners()) {
+            this.info_button_2.removeActionListener(actionListener);
+        }
+    }
 
-        if (tile.getType() == "block") {
-            if (tile.getTower() != null) {
-                Tower tower = tile.getTower();
-                String type = "";
-                if (tower instanceof HomeBaseTower) {
-                    type = "Home Base";
-                    this.info_label.setText(type);
-                } else {
-                    if (tower instanceof ShooterTower) {
-                        type = "Shooter Tower";
+    public void selectTile(Tile tile, String messageText) {
+        clearAllInfoButtons();
+        
+        if (messageText != "TOWER SOLD") {
+            this.selectedTile = tile;
+
+            String text = "";
+
+            if (tile.getType() == "block") {
+                if (tile.getTower() != null) {
+                    Tower tower = tile.getTower();
+                    String type = "";
+                    if (tower instanceof HomeBaseTower) {
+                        type = "Home Base";
+                        text = type;
+                    } else {
+                        if (tower instanceof ShooterTower) {
+                            type = "Shooter Tower";
+                        }
+
+                        text = type + " - " + "Level: " + tower.getLevel();
+
+                        info_button_1.setText("upgrade");
+                        this.info_button_1.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                int cost = tower.getUpgradeCost();
+                                String transaction = "";
+
+                                if (coinCount >= cost) {
+                                    updateCoins(coinCount - cost);
+                                    transaction = tower.upgrade(cost);
+                                } else {
+                                    transaction = "INSUFFICIENT COINS";
+                                }
+
+                                selectTile(selectedTile, transaction);
+                            }
+                        });
+
+                        info_button_2.setText("sell");
+                        this.info_button_2.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                removeTower(tile);
+                                selectTile(selectedTile, "TOWER SOLD");
+                            }
+                        });
                     }
 
-                    this.info_label.setText(type + " - " + "Level: " + tower.getLevel());
+                } else {
+                    text = "EMPTY TILE";
                 }
-
             } else {
-                this.info_label.setText("Empty tile");
+                text = "TILE NOT SELECTABLE";
             }
+
+            this.info_label.setText(text + " - " + messageText);
         } else {
-            this.info_label.setText("Tile not selectable");
-        }
+            this.info_label.setText("EMPTY TILE");
+        } 
         
         repaint();
 //        this.info_label.setText("SelectedTile: " + selectedTile.getCol() + ", " + selectedTile.getRow());
@@ -447,6 +496,8 @@ public class GameMap extends JPanel {
             if (tower instanceof AttackTower) {
                 this.projectiles.remove(((AttackTower) tower).getProjs());
             }
+
+            updateCoins(this.coinCount + tower.getInitialCost());
         }
     }
 
