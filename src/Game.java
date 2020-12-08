@@ -12,7 +12,7 @@ public class Game implements Runnable {
 
         // Top-level frame in which game components live
         final JFrame frame = new JFrame("Last Stand TD");
-        frame.setLocation(500, 0);
+        frame.setLocation(300, 0);
 
         // Status
         final JPanel status_panel = new JPanel();
@@ -25,23 +25,45 @@ public class Game implements Runnable {
         status_panel.add(coins_label);
         frame.add(status_panel, BorderLayout.NORTH);
 
+        // Info Control Panel
+        final JPanel info_panel = new JPanel();
+        final JLabel info_label = new JLabel("");
+//        final JButton addShooterTower = new JButton("Shooter Tower");
+//        addShooterTower.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                
+//            }
+//        });
+//        game_panel.add(addShooterTower);
+        info_panel.add(info_label);
+        frame.add(info_panel, BorderLayout.SOUTH);
+
         // Main playing area
-        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label);
+        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label, info_panel, info_label);
         frame.add(gameMap, BorderLayout.CENTER);
 
         // Game Control Panel
         final JPanel game_panel = new JPanel();
-        final JButton reset = new JButton("Reset");
-        reset.addActionListener(new ActionListener() {
+        final JButton addShooterTower = new JButton("Shooter Tower (" + ShooterTower.INITIAL_COST + ")");
+        addShooterTower.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                gameMap.reset();
+                info_label.setText("Choose block to add shooter tower");
             }
         });
-        game_panel.add(reset);
+        game_panel.add(addShooterTower);
         frame.add(game_panel, BorderLayout.EAST);
 
         // User High Score Panel
         final JPanel user_panel = new JPanel();
+        frame.add(user_panel, BorderLayout.WEST);
+        final JButton reset = new JButton("Reset");
+        reset.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                info_label.setText("RESET");
+                gameMap.reset();
+            }
+        });
+        user_panel.add(reset);
         frame.add(user_panel, BorderLayout.WEST);
 
 //        // Status panel

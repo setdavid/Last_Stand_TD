@@ -5,8 +5,8 @@ public abstract class RangeTower extends Tower {
     private int range;
     private Enemy target;
 
-    public RangeTower(int px, int py, int width, int height, int mapSize, Tile homeTile, int initialCost, int range) {
-        super(px, py, width, height, mapSize, homeTile, initialCost);
+    public RangeTower(int mapSize, Tile homeTile, int initialCost, int range) {
+        super(mapSize, homeTile, initialCost);
         this.range = range;
         this.target = null;
     }

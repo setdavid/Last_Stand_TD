@@ -16,12 +16,17 @@ import javax.swing.*;
 
 public class GameMap extends JPanel {
 
-    public static final int MAP_SIZE = 750;
+    public static final int MAP_SIZE = 600;
     public static final double BLOCK_PROB = 0.3;
     public static final int ARRAY_SIZE = 25;
 
     private Tile[][] tileMap;
     private static final int TILE_SIZE = MAP_SIZE / ARRAY_SIZE;
+
+    private Tile selectedTile = null;
+    private JPanel info_panel;
+    private JLabel info_label;
+    private JButton info_button;
 
     private Timer mainTimer = null;
     public static final int INTERVAL = 60;
@@ -31,7 +36,7 @@ public class GameMap extends JPanel {
     private JLabel timer_label;
     private Timer roundTimer;
     private int timeRemaining;
-    public static final int TIME_BETWEEN_ROUNDS = 5000;
+    public static final int TIME_BETWEEN_ROUNDS = 1000;
     private JLabel round_label;
     private int roundCount;
     private boolean roundInProgress;
@@ -40,20 +45,39 @@ public class GameMap extends JPanel {
     private int coinCount;
     private int coinRate;
     private Timer coinTimer;
+    public static final int INIT_COINS = 300;
 
     private Map<Integer, LinkedList<Tile>> paths = null;
-    private boolean SHOW_PATHS = true;
+    private boolean SHOW_PATHS = false;
 
+    private HomeBaseTower homeBase;
     private HashSet<Tower> towers;
     private LinkedList<HashSet<Projectile>> projectiles;
     private HashSet<Enemy> enemies;
     private LinkedList<Enemy> enemyQueue;
 
-    public GameMap(JLabel round_label, JLabel timer_label, JLabel coins_label) {
+    public GameMap(JLabel round_label, JLabel timer_label, JLabel coins_label, JPanel info_panel, JLabel info_label) {
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
+        
+        this.info_label = info_label;
+        this.info_button = new JButton("");
+        
         this.timer_label = timer_label;
         this.round_label = round_label;
         this.coins_label = coins_label;
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Point p = e.getPoint();
+
+                selectTile(tileMap[p.y / TILE_SIZE][p.x / TILE_SIZE]);
+//                System.out.println("SelectedTile: " + selectedTile.getCol() + ", " + selectedTile.getRow());
+//                System.out.println("SelectedTile: " + selectedTile.getType());
+
+                repaint(); 
+            }
+        });
         reset();
     }
 
@@ -92,18 +116,9 @@ public class GameMap extends JPanel {
             reset();
         } else {
             this.paths = paths;
+            tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1].setType("block");
 
-            if (this.mainTimer != null) {
-                this.mainTimer.stop();
-            }
-
-            if (this.roundTimer != null) {
-                this.roundTimer.stop();
-            }
-
-            if (this.coinTimer != null) {
-                this.coinTimer.stop();
-            }
+            stopAllTimers();
 
             this.mainTimer = new Timer(INTERVAL, new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -111,7 +126,7 @@ public class GameMap extends JPanel {
                 }
             });
 
-            updateRounds(0);
+            updateRounds(1);
             updateTimer(0);
             this.roundTimer = new Timer(1000, new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -119,13 +134,16 @@ public class GameMap extends JPanel {
                 }
             });
 
-            updateCoins(0);
+            updateCoins(INIT_COINS);
             this.coinRate = 10;
             this.coinTimer = new Timer(1000, new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     incrCoins();
                 }
             });
+
+            this.homeBase = new HomeBaseTower(MAP_SIZE, tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
+            tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1].setTower(this.homeBase);
 
             this.towers = new HashSet<Tower>();
             this.projectiles = new LinkedList<HashSet<Projectile>>();
@@ -196,6 +214,10 @@ public class GameMap extends JPanel {
 
                 if (enemy.isDead()) {
                     removeEnemies.add(enemy);
+                } else {
+                    if (this.homeBase.enemyWin(enemy)) {
+                        playerLose();
+                    }
                 }
 
                 if (lookupTile != null) {
@@ -262,10 +284,53 @@ public class GameMap extends JPanel {
         repaint();
     }
 
+    public void selectTile(Tile tile) {
+        this.selectedTile = tile;
+        if (tile.getType() == "block") {
+            if (tile.getTower() != null) {
+                Tower tower = tile.getTower();
+                String type = "";
+                if (tower instanceof HomeBaseTower) {
+                    type = "Home Base";
+                    this.info_label.setText(type);
+                } else {
+                    if (tower instanceof ShooterTower) {
+                        type = "Shooter Tower";
+                    } 
+                    
+                    this.info_label.setText(type + " - " + "Level: " + tower.getLevel());
+                }
+                
+            } else {
+                this.info_label.setText("Empty tile");
+            }
+        } else {
+            this.info_label.setText("Tile not selectable");
+        }
+//        this.info_label.setText("SelectedTile: " + selectedTile.getCol() + ", " + selectedTile.getRow());
+    }
+
+    private void stopAllTimers() {
+        if (this.mainTimer != null) {
+            this.mainTimer.stop();
+        }
+
+        if (this.roundTimer != null) {
+            this.roundTimer.stop();
+        }
+
+        if (this.coinTimer != null) {
+            this.coinTimer.stop();
+        }
+    }
+
     public void startGame() {
         if (!this.playing) {
             this.playing = true;
-            startNextRound();
+            this.roundInProgress = true;
+            this.coinTimer.start();
+            enqEnemyQueue(chooseRandomEnemy());
+//            startNextRound();
         }
     }
 
@@ -294,6 +359,13 @@ public class GameMap extends JPanel {
         }
     }
 
+    private void playerLose() {
+        this.playing = false;
+        stopAllTimers();
+        this.timer_label.setText("(YOU");
+        this.coins_label.setText("LOST!)");
+    }
+
     private Enemy chooseRandomEnemy() {
         double randomNum = Math.random();
         if (randomNum <= 0.2) {
@@ -319,7 +391,7 @@ public class GameMap extends JPanel {
     private void updateCoins(int coins) {
         this.coinCount = coins;
         this.coins_label.setText("Coins: " + coins);
-        this.coins_label.repaint();
+//        this.coins_label.repaint();
     }
 
     private void incrCoins() {
@@ -329,13 +401,13 @@ public class GameMap extends JPanel {
     private void updateRounds(int round) {
         this.roundCount = round;
         this.round_label.setText("Round: " + round);
-        this.coins_label.repaint();
+//        this.coins_label.repaint();
     }
 
     private void updateTimer(int time) {
         this.timeRemaining = time;
         this.timer_label.setText("Next Round Starts in: " + time);
-        this.timer_label.repaint();
+//        this.timer_label.repaint();
     }
 
     private void decrTimeRemaining() {
@@ -353,7 +425,7 @@ public class GameMap extends JPanel {
             Tower tower = null;
             switch (towerType) {
             case "shooter":
-                tower = new ShooterTower(tile, MAP_SIZE);
+                tower = new ShooterTower(MAP_SIZE, tile);
                 break;
             default:
                 break;
@@ -503,6 +575,9 @@ public class GameMap extends JPanel {
                 tower.draw(g);
             }
         }
+
+        this.homeBase.changeColors();
+        this.homeBase.draw(g);
 
     }
 

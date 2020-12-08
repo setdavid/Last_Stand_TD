@@ -6,7 +6,7 @@ public class Tile extends PFNode {
     private final int py;
 
     private final int size;
-    private final String type;
+    private String type;
     private final Color color;
 
     private Tower tower = null;
@@ -50,6 +50,10 @@ public class Tile extends PFNode {
         return this.tower;
     };
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public void setTower(Tower tower) {
         this.tower = tower;
     };
@@ -59,8 +63,9 @@ public class Tile extends PFNode {
     };
 
     public boolean objWithinTile(GameObj obj) {
-        return ((obj.getPx() >= this.px) && (obj.getPx() <= this.px + this.size))
-                && ((obj.getPy() >= this.py) && (obj.getPy() <= this.py + this.size));
+        int[] cc = GameObj.centerCoords(obj.getPx(), obj.getPy(), obj.getWidth(), obj.getHeight());
+        return ((cc[0] >= this.px) && (cc[0] <= this.px + this.size))
+                && ((cc[1] >= this.py) && (cc[1] <= this.py + this.size));
     }
 
     public void draw(Graphics g) {

@@ -12,9 +12,8 @@ public abstract class AttackTower extends RangeTower {
     private int fireInterval;
     private HashSet<Projectile> projs;
 
-    public AttackTower(int px, int py, int width, int height, int mapSize, Tile homeTile, int initialCost, int range,
-            int fireInterval) {
-        super(px, py, width, height, mapSize, homeTile, initialCost, range);
+    public AttackTower(int mapSize, Tile homeTile, int initialCost, int range, int fireInterval) {
+        super(mapSize, homeTile, initialCost, range);
 
         this.fireInterval = fireInterval;
 

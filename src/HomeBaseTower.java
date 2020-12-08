@@ -1,9 +1,19 @@
+import java.awt.Color;
 import java.awt.Graphics;
 
 public class HomeBaseTower extends Tower {
+    private Color color;
+    private int r;
+    private int b;
+    private int g;
 
-    public HomeBaseTower(int px, int py, int width, int height, int mapSize, Tile homeTile, int initialCost) {
-        super(px, py, width, height, mapSize, homeTile, 0);
+    public HomeBaseTower(int mapSize, Tile homeTile) {
+        super(mapSize, homeTile, 0);
+        this.color = Color.red;
+
+        this.r = 255;
+        this.b = 0;
+        this.g = 0;
     }
 
     @Override
@@ -31,9 +41,18 @@ public class HomeBaseTower extends Tower {
 
     }
 
+    public void changeColors() {
+        this.color = new Color((int) (255.0 * Math.random()), (int) (255.0 * Math.random()), (int) (255.0 * Math.random()));
+    }
+
+    public boolean enemyWin(Enemy enemy) {
+        return this.getHomeTile().objWithinTile(enemy);
+    }
+
     @Override
     public void draw(Graphics g) {
-
+        g.setColor(this.color);
+        g.fillRect(this.getPx(), this.getPy(), this.getHomeTile().getSize(), this.getHomeTile().getSize());
     }
 
 }

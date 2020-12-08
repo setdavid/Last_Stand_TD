@@ -3,8 +3,8 @@ import java.awt.Graphics;
 import java.util.LinkedList;
 
 public class BasicEnemy extends Enemy {
-    public static final int WIDTH = 20;
-    public static final int HEIGHT = 20;
+    public static final int WIDTH = 23;
+    public static final int HEIGHT = 23;
     private Color color;
 //    public static final int SPEED = 2;
 //    public static final int HP = 10;

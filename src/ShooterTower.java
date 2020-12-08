@@ -9,9 +9,8 @@ public class ShooterTower extends AttackTower {
     private int damage;
     private int accuracy;
 
-    public ShooterTower(Tile homeTile, int mapSize) {
-        super(homeTile.getPx(), homeTile.getPy(), homeTile.getSize(), homeTile.getSize(), mapSize, homeTile,
-                INITIAL_COST, RANGE, FIRE_INTERVAL);
+    public ShooterTower(int mapSize, Tile homeTile) {
+        super(mapSize, homeTile, INITIAL_COST, RANGE, FIRE_INTERVAL);
 
         this.damage = 2;
         this.accuracy = 25;

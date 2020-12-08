@@ -6,12 +6,13 @@ public abstract class Tower extends GameObj {
     private int upgradeCost;
     private int level;
 
-    public Tower(int px, int py, int width, int height, int mapSize, Tile homeTile, int initialCost) {
-        super(0, 0, px, py, width, height, mapSize);
+    public Tower(int mapSize, Tile homeTile, int initialCost) {
+        super(0, 0, homeTile.getPx(), homeTile.getPy(), homeTile.getSize(), homeTile.getSize(), mapSize);
 
         this.homeTile = homeTile;
         this.initialCost = initialCost;
         this.upgradeCost = (int) (1.5 * initialCost);
+        this.level = 1;
         level1();
     }
 
