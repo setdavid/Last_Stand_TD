@@ -24,7 +24,6 @@ public class GameMap extends JPanel {
     private static final int TILE_SIZE = MAP_SIZE / ARRAY_SIZE;
 
     private Tile selectedTile = null;
-    private JPanel info_panel;
     private JLabel info_label;
     private JButton info_button;
 
@@ -56,12 +55,12 @@ public class GameMap extends JPanel {
     private HashSet<Enemy> enemies;
     private LinkedList<Enemy> enemyQueue;
 
-    public GameMap(JLabel round_label, JLabel timer_label, JLabel coins_label, JPanel info_panel, JLabel info_label) {
+    public GameMap(JLabel round_label, JLabel timer_label, JLabel coins_label, JLabel info_label, JButton info_button) {
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
-        
+
         this.info_label = info_label;
-        this.info_button = new JButton("");
-        
+        this.info_button = info_button;
+
         this.timer_label = timer_label;
         this.round_label = round_label;
         this.coins_label = coins_label;
@@ -75,7 +74,7 @@ public class GameMap extends JPanel {
 //                System.out.println("SelectedTile: " + selectedTile.getCol() + ", " + selectedTile.getRow());
 //                System.out.println("SelectedTile: " + selectedTile.getType());
 
-                repaint(); 
+                repaint();
             }
         });
         reset();
@@ -241,12 +240,7 @@ public class GameMap extends JPanel {
         }
 
         if (projectiles != null) {
-            int tracker = 1;
-
             for (HashSet<Projectile> group : projectiles) {
-//                System.out.println(tracker + ": " + group.size());
-//                System.out.println("Num in proj: " + projectiles.size());
-
                 if (group != null) {
                     LinkedList<Projectile> removeProjs = new LinkedList<Projectile>();
 
@@ -267,8 +261,6 @@ public class GameMap extends JPanel {
                         }
                     }
                 }
-
-                tracker++;
             }
         }
 
@@ -286,6 +278,7 @@ public class GameMap extends JPanel {
 
     public void selectTile(Tile tile) {
         this.selectedTile = tile;
+
         if (tile.getType() == "block") {
             if (tile.getTower() != null) {
                 Tower tower = tile.getTower();
@@ -296,17 +289,19 @@ public class GameMap extends JPanel {
                 } else {
                     if (tower instanceof ShooterTower) {
                         type = "Shooter Tower";
-                    } 
-                    
+                    }
+
                     this.info_label.setText(type + " - " + "Level: " + tower.getLevel());
                 }
-                
+
             } else {
                 this.info_label.setText("Empty tile");
             }
         } else {
             this.info_label.setText("Tile not selectable");
         }
+        
+        repaint();
 //        this.info_label.setText("SelectedTile: " + selectedTile.getCol() + ", " + selectedTile.getRow());
     }
 

@@ -14,6 +14,13 @@ public class Game implements Runnable {
         final JFrame frame = new JFrame("Last Stand TD");
         frame.setLocation(300, 0);
 
+        // Info
+        final JPanel info_panel = new JPanel();
+        final JLabel info_label = new JLabel(" ");
+        final JButton info_button = new JButton(" ");
+        info_panel.add(info_label);
+        info_panel.add(info_button);
+
         // Status
         final JPanel status_panel = new JPanel();
         final JLabel round_label = new JLabel("Round: 0");
@@ -23,24 +30,9 @@ public class Game implements Runnable {
         status_panel.add(round_label);
         status_panel.add(timer_label);
         status_panel.add(coins_label);
-        frame.add(status_panel, BorderLayout.NORTH);
-
-        // Info Control Panel
-        final JPanel info_panel = new JPanel();
-        final JLabel info_label = new JLabel("");
-//        final JButton addShooterTower = new JButton("Shooter Tower");
-//        addShooterTower.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                
-//            }
-//        });
-//        game_panel.add(addShooterTower);
-        info_panel.add(info_label);
-        frame.add(info_panel, BorderLayout.SOUTH);
 
         // Main playing area
-        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label, info_panel, info_label);
-        frame.add(gameMap, BorderLayout.CENTER);
+        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label, info_label, info_button);
 
         // Game Control Panel
         final JPanel game_panel = new JPanel();
@@ -50,12 +42,11 @@ public class Game implements Runnable {
                 info_label.setText("Choose block to add shooter tower");
             }
         });
+
         game_panel.add(addShooterTower);
-        frame.add(game_panel, BorderLayout.EAST);
 
         // User High Score Panel
         final JPanel user_panel = new JPanel();
-        frame.add(user_panel, BorderLayout.WEST);
         final JButton reset = new JButton("Reset");
         reset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -64,13 +55,12 @@ public class Game implements Runnable {
             }
         });
         user_panel.add(reset);
-        frame.add(user_panel, BorderLayout.WEST);
 
-//        // Status panel
-//        final JPanel status_panel = new JPanel();
-//        frame.add(status_panel, BorderLayout.SOUTH);
-//        final JLabel status = new JLabel("Running...");
-//        status_panel.add(status);
+        frame.add(info_panel, BorderLayout.SOUTH);
+        frame.add(game_panel, BorderLayout.EAST);
+        frame.add(user_panel, BorderLayout.WEST);
+        frame.add(status_panel, BorderLayout.NORTH);
+        frame.add(gameMap, BorderLayout.CENTER);
 
         // Put the frame on the screen
         frame.pack();
