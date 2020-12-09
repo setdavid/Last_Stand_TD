@@ -9,12 +9,14 @@ import javax.swing.Timer;
 public abstract class AttackTower extends RangeTower {
     private Timer timer;
     private int fireInterval;
+    private int accuracy;
     private HashSet<Projectile> projs;
 
-    public AttackTower(int mapSize, Tile homeTile, int initialCost, int range, int fireInterval) {
+    public AttackTower(int mapSize, Tile homeTile, int initialCost, int range, int fireInterval, int accuracy) {
         super(mapSize, homeTile, initialCost, range);
 
         this.fireInterval = fireInterval;
+        this.accuracy = accuracy;
 
         this.projs = new HashSet<Projectile>();
         this.timer = new Timer(fireInterval, new ActionListener() {
@@ -44,6 +46,10 @@ public abstract class AttackTower extends RangeTower {
     public int getfireInterval() {
         return this.fireInterval;
     }
+    
+    public int getAccuracy() {
+        return this.accuracy;
+    }
 
     public HashSet<Projectile> getProjs() {
         return this.projs;
@@ -56,6 +62,10 @@ public abstract class AttackTower extends RangeTower {
                 shoot();
             }
         });
+    }
+    
+    public void setAccuracy(int accuracy) {
+        this.accuracy = accuracy;
     }
 
     public void shoot() {

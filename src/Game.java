@@ -16,12 +16,17 @@ public class Game implements Runnable {
 
         // Info
         final JPanel info_panel = new JPanel();
+        final JPanel info_box = new JPanel();
+        info_box.setLayout(new BoxLayout(info_box, BoxLayout.PAGE_AXIS));
         final JLabel infoLabel = new JLabel(" ");
+        final JLabel infoSubLabel = new JLabel(" ");
         final JButton infoButton1 = new JButton(" ");
         final JButton infoButton2 = new JButton(" ");
-        info_panel.add(infoLabel);
-        info_panel.add(infoButton1);
-        info_panel.add(infoButton2);
+        info_box.add(infoLabel);
+        info_box.add(infoSubLabel);
+        info_box.add(infoButton1);
+        info_box.add(infoButton2);
+        info_panel.add(info_box);
 
         // Status
         final JPanel status_panel = new JPanel();
@@ -35,7 +40,7 @@ public class Game implements Runnable {
 
         // Main playing area
         final GameMap gameMap = new GameMap(round_label, timer_label, coins_label, 
-                infoLabel, infoButton1, infoButton2);
+                infoLabel, infoSubLabel, infoButton1, infoButton2);
 
         // Game Control Panel
         final JPanel game_panel = new JPanel();
@@ -50,7 +55,7 @@ public class Game implements Runnable {
         final JButton reset = new JButton("RESET GAME");
         reset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                gameMap.clearAllInfoButtons();
+                gameMap.clearAllInfoComps();
                 infoLabel.setText("RESET");
                 gameMap.reset();
             }
@@ -58,15 +63,27 @@ public class Game implements Runnable {
         final JButton start = new JButton("START GAME");
         start.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                gameMap.clearAllInfoButtons();
+                gameMap.clearAllInfoComps();
                 infoLabel.setText("GAME START!");
                 if (!gameMap.isPlaying() && !gameMap.gameNeedsReset()) {
                     gameMap.startGame();
                 }
             }
         });
-        score_panel.add(start);
-        score_panel.add(reset);
+        final JPanel score_box = new JPanel();
+        score_box.setLayout(new BoxLayout(score_box, BoxLayout.PAGE_AXIS));
+        score_box.add(start);
+        score_box.add(Box.createRigidArea(new Dimension(0,10)));
+        score_box.add(reset);
+        score_box.add(Box.createRigidArea(new Dimension(0,150)));
+        JLabel highScoreLabel = new JLabel("---------------- HIGH SCORES ----------------");
+        score_box.add(highScoreLabel);
+        JLabel[] highScores = new JLabel[10];
+        for (int i = 0; i < highScores.length; i++) {
+            highScores[i] = new JLabel("This is a test ");
+            score_box.add(highScores[i]);
+        }
+        score_panel.add(score_box);
 
         frame.add(info_panel, BorderLayout.SOUTH);
         frame.add(game_panel, BorderLayout.EAST);
@@ -87,14 +104,13 @@ public class Game implements Runnable {
             JButton infoButton1, JButton button, String towerType) {
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                gameMap.clearAllInfoButtons();
+                gameMap.clearAllInfoComps();
                 gameMap.setSelectedTower(towerType);
                 infoLabel.setText("CHOOSE BLOCK TO ADD " + towerType + " TOWER");
                 infoButton1.setText("CANCEL");
                 infoButton1.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        infoLabel.setText(" ");
-                        gameMap.clearAllInfoButtons();
+                        gameMap.clearAllInfoComps();
                         gameMap.setSelectedTower(null);
                     }
                 });

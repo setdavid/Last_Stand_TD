@@ -4,12 +4,14 @@ public abstract class Projectile extends GameObj {
     private final int SPEED = 15;
 
     private int accuracy;
+    private int hitEnemies;
     private int reAdjustFreqTracker = 1;
 
-    public Projectile(int px, int py, int width, int height, int mapSize, Enemy target, int accuracy) {
+    public Projectile(int px, int py, int width, int height, int mapSize, Enemy target, int accuracy, int hitEnemies) {
         super(0, 0, px, py, width, height, mapSize);
 
         this.target = target;
+        this.hitEnemies = hitEnemies;
         this.accuracy = accuracy;
         findTrajectory();
     }
@@ -42,8 +44,9 @@ public abstract class Projectile extends GameObj {
     }
 
     public boolean hitEnemy(Enemy enemy) {
-        if (this.willIntersect(enemy)) {
+        if (this.willIntersect(enemy) && hitEnemies > 0) {
             affectEnemy(enemy);
+            this.hitEnemies--;
             return true;
         } else {
             return false;

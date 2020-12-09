@@ -24,6 +24,7 @@ public class GameMap extends JPanel {
     private Tile selectedTile = null;
     private String selectedTower = null;
     private JLabel infoLabel;
+    private JLabel infoSubLabel;
     private JButton infoButton1;
     private JButton infoButton2;
 
@@ -57,11 +58,12 @@ public class GameMap extends JPanel {
     private LinkedList<Enemy> enemyQueue;
 
     public GameMap(JLabel roundLabel, JLabel timerLabel, JLabel coinsLabel, 
-            JLabel infoLabel, JButton infoButton1,
+            JLabel infoLabel, JLabel infoSubLabel, JButton infoButton1,
             JButton infoButton2) {
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
 
         this.infoLabel = infoLabel;
+        this.infoSubLabel = infoSubLabel;
         this.infoButton1 = infoButton1;
         this.infoButton2 = infoButton2;
 
@@ -138,7 +140,7 @@ public class GameMap extends JPanel {
             });
 
             updateCoins(INIT_COINS);
-            this.coinRate = 10;
+            this.coinRate = 25;
             this.coinTimer = new Timer(1000, new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     incrCoins();
@@ -239,7 +241,9 @@ public class GameMap extends JPanel {
         repaint();
     }
 
-    public void clearAllInfoButtons() {
+    public void clearAllInfoComps() {
+        this.infoLabel.setText(" ");
+        this.infoSubLabel.setText(" ");
         infoButton1.setText(" ");
         for (ActionListener actionListener : this.infoButton1.getActionListeners()) {
             this.infoButton1.removeActionListener(actionListener);
@@ -251,7 +255,7 @@ public class GameMap extends JPanel {
     }
 
     public void selectTile(Tile tile, String messageText) {
-        clearAllInfoButtons();
+        clearAllInfoComps();
 
         String addTowerMessage = addSelectedTower(tile);
         this.selectedTower = null;
@@ -260,6 +264,7 @@ public class GameMap extends JPanel {
             this.selectedTile = tile;
 
             String text = "";
+            String subText = "";
 
             if (tile.getType() == "block") {
                 if (tile.getTower() != null) {
@@ -274,6 +279,7 @@ public class GameMap extends JPanel {
                         }
 
                         text = type + " - " + "Level: " + tower.getLevel();
+                        this.infoSubLabel.setText(tower.getUpgradeMessage());
 
                         infoButton1.setText("UPGRADE (-" + tower.getUpgradeCost() + ")");
                         this.infoButton1.addActionListener(new ActionListener() {

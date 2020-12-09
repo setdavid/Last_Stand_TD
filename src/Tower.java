@@ -4,6 +4,7 @@ public abstract class Tower extends GameObj {
 
     private int initialCost;
     private int upgradeCost;
+    private String upgradeMessage = "";
     private int level;
 
     public Tower(int mapSize, Tile homeTile, int initialCost) {
@@ -31,9 +32,17 @@ public abstract class Tower extends GameObj {
     public int getUpgradeCost() {
         return this.upgradeCost;
     }
+    
+    public String getUpgradeMessage() {
+        return this.upgradeMessage;
+    }
 
     public void setLevel(int level) {
         this.level = level;
+    }
+    
+    public void setUpgradeMessage(String message) {
+        this.upgradeMessage = message;
     }
 
     public String upgrade(int payment) {
