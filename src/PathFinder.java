@@ -1,5 +1,3 @@
-import java.awt.Color;
-import java.awt.Graphics;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -99,9 +97,7 @@ public class PathFinder {
                 if (f < lowestFScore) {
                     lowestFScore = f;
                     lowestFScoreNode = t;
-                }
-
-                else if (f == lowestFScore) {
+                } else if (f == lowestFScore) {
                     if (t.getGScore() < lowestFScoreNode.getGScore()) {
                         lowestFScoreNode = t;
                     }
@@ -170,9 +166,7 @@ public class PathFinder {
                         } else {
                             ccAllowedY = false;
                         }
-                    }
-
-                    else if (cornerLocation[0] == -1) {
+                    } else if (cornerLocation[0] == -1) {
                         if (tileMap[row - 1][col].getType() != "block") {
                             ccAllowedY = true;
                         } else {
@@ -186,9 +180,7 @@ public class PathFinder {
                         } else {
                             ccAllowedX = false;
                         }
-                    }
-
-                    else if (cornerLocation[1] == 1) {
+                    } else if (cornerLocation[1] == 1) {
                         if (tileMap[row][col - 1].getType() != "block") {
                             ccAllowedX = true;
                         } else {
@@ -203,9 +195,7 @@ public class PathFinder {
                     }
                 }
             }
-        }
-
-        else if (movementType == "nondiagonal") {
+        } else if (movementType == "nondiagonal") {
             ccAllowed = true;
 
             if (cornerLocation[2] < 2) {
@@ -215,11 +205,7 @@ public class PathFinder {
             }
         }
 
-        if (mtAllowed && ccAllowed) {
-            return true;
-        } else {
-            return false;
-        }
+        return mtAllowed && ccAllowed;
 
     }
 
@@ -230,9 +216,7 @@ public class PathFinder {
         if (row == currentNode.getRow() - 1) {
             locationInfo[0] = 1; // "top"
             numItems++;
-        }
-
-        else if (row == currentNode.getRow() + 1) {
+        } else if (row == currentNode.getRow() + 1) {
             locationInfo[0] = -1; // "bottom";
             numItems++;
         }
@@ -240,9 +224,7 @@ public class PathFinder {
         if (col == currentNode.getCol() - 1) {
             locationInfo[1] = -1; // "left";
             numItems++;
-        }
-
-        else if (col == currentNode.getCol() + 1) {
+        } else if (col == currentNode.getCol() + 1) {
             locationInfo[1] = 1; // "right";
             numItems++;
         }
@@ -306,32 +288,5 @@ public class PathFinder {
             System.out.println("Null Path");
         }
     }
-
-//    public static void main(String[] args) {
-//        int ARRAY_SIZE = 10;
-//
-//        int TILE_SIZE = 10;
-//
-//        Tile[][] tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
-//
-//        for (int r = 0; r < tileMap.length; r++) {
-//            for (int c = 0; c < tileMap[0].length; c++) {
-//                String type;
-//                if (Math.random() <= 0.1) {
-//                    type = "block";
-//                } else {
-//                    type = "open";
-//                }
-//
-//                tileMap[r][c] = new Tile(c * TILE_SIZE, r * TILE_SIZE, r, c, TILE_SIZE, type);
-//            }
-//        }
-//
-//      
-//        PathFinder pf = new PathFinder(tileMap, tileMap[0][0], tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
-//        pf.loop();
-//        pf.printPath();
-//        pf.reset();
-//    }
 
 }

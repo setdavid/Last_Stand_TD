@@ -2,9 +2,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class ShooterTower extends AttackTower {
-    public static int INITIAL_COST = 100;
-    public static int RANGE = 600;
-    public static int FIRE_INTERVAL = 250;
+    public static int INITIAL_COST = 150;
+    private static int RANGE = 600;
+    private static int FIRE_INTERVAL = 1000;
 
     private int damage;
     private int accuracy;
@@ -29,7 +29,7 @@ public class ShooterTower extends AttackTower {
 
     @Override
     public void level2() {
-        this.damage = 20;
+        setFireInterval(500);
     }
 
     @Override

@@ -2,7 +2,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.TreeSet;
 
 import javax.swing.Timer;
@@ -64,19 +63,6 @@ public abstract class AttackTower extends RangeTower {
             Projectile proj = makeProj();
             this.projs.add(proj);
         }
-
-//        LinkedList<Projectile> removeProjs = new LinkedList<Projectile>();
-//        for (Projectile p : this.projs) {
-//            if (p.willIntersect(p.getTarget()) || p.outOfBounds()) {
-//                removeProjs.add(p);
-//            }
-//        }
-//
-//        if (!removeProjs.isEmpty()) {
-//            for (Projectile p : removeProjs) {
-//                this.projs.remove(p);
-//            }
-//        }
     }
 
     public abstract Projectile makeProj();

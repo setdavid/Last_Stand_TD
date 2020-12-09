@@ -178,20 +178,20 @@ public abstract class GameObj {
         }
 
         switch (d) {
-        case UP:
-            this.vy = Math.abs(this.vy);
-            break;
-        case DOWN:
-            this.vy = -Math.abs(this.vy);
-            break;
-        case LEFT:
-            this.vx = Math.abs(this.vx);
-            break;
-        case RIGHT:
-            this.vx = -Math.abs(this.vx);
-            break;
-        default:
-            break;
+            case UP:
+                this.vy = Math.abs(this.vy);
+                break;
+            case DOWN:
+                this.vy = -Math.abs(this.vy);
+                break;
+            case LEFT:
+                this.vx = Math.abs(this.vx);
+                break;
+            case RIGHT:
+                this.vx = -Math.abs(this.vx);
+                break;
+            default:
+                break;
         }
     }
 

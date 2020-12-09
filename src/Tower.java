@@ -48,17 +48,17 @@ public abstract class Tower extends GameObj {
                     this.upgradeCost = (int) (this.upgradeCost * 1.5);
 
                     switch (level) {
-                    case 2:
-                        level2();
-                        break;
-                    case 3:
-                        level3();
-                        break;
-                    case 4:
-                        level4();
-                        break;
-                    default:
-                        break;
+                        case 2:
+                            level2();
+                            break;
+                        case 3:
+                            level3();
+                            break;
+                        case 4:
+                            level4();
+                            break;
+                        default:
+                            break;
                     }
                 }
 

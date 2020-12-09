@@ -1,13 +1,11 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.swing.*;
@@ -24,31 +22,33 @@ public class GameMap extends JPanel {
     private static final int TILE_SIZE = MAP_SIZE / ARRAY_SIZE;
 
     private Tile selectedTile = null;
-    private JLabel info_label;
-    private JButton info_button_1;
-    private JButton info_button_2;
+    private String selectedTower = null;
+    private JLabel infoLabel;
+    private JButton infoButton1;
+    private JButton infoButton2;
 
     private Timer mainTimer = null;
     public static final int INTERVAL = 60;
 
     private boolean playing;
+    private boolean gameNeedsReset = false;
 
-    private JLabel timer_label;
+    private JLabel timerLabel;
     private Timer roundTimer;
     private int timeRemaining;
     public static final int TIME_BETWEEN_ROUNDS = 1000;
-    private JLabel round_label;
+    private JLabel roundLabel;
     private int roundCount;
     private boolean roundInProgress;
 
-    private JLabel coins_label;
+    private JLabel coinsLabel;
     private int coinCount;
     private int coinRate;
     private Timer coinTimer;
     public static final int INIT_COINS = 300;
 
     private Map<Integer, LinkedList<Tile>> paths = null;
-    private boolean SHOW_PATHS = false;
+    private final boolean showPaths = false;
 
     private HomeBaseTower homeBase;
     private HashSet<Tower> towers;
@@ -56,17 +56,18 @@ public class GameMap extends JPanel {
     private HashSet<Enemy> enemies;
     private LinkedList<Enemy> enemyQueue;
 
-    public GameMap(JLabel round_label, JLabel timer_label, JLabel coins_label, JLabel info_label, JButton info_button_1,
-            JButton info_button_2) {
+    public GameMap(JLabel roundLabel, JLabel timerLabel, JLabel coinsLabel, 
+            JLabel infoLabel, JButton infoButton1,
+            JButton infoButton2) {
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
 
-        this.info_label = info_label;
-        this.info_button_1 = info_button_1;
-        this.info_button_2 = info_button_2;
+        this.infoLabel = infoLabel;
+        this.infoButton1 = infoButton1;
+        this.infoButton2 = infoButton2;
 
-        this.timer_label = timer_label;
-        this.round_label = round_label;
-        this.coins_label = coins_label;
+        this.timerLabel = timerLabel;
+        this.roundLabel = roundLabel;
+        this.coinsLabel = coinsLabel;
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -74,9 +75,6 @@ public class GameMap extends JPanel {
                 Point p = e.getPoint();
 
                 selectTile(tileMap[p.y / TILE_SIZE][p.x / TILE_SIZE], "");
-//                System.out.println("SelectedTile: " + selectedTile.getCol() + ", " + selectedTile.getRow());
-//                System.out.println("SelectedTile: " + selectedTile.getType());
-
                 repaint();
             }
         });
@@ -85,6 +83,8 @@ public class GameMap extends JPanel {
 
     public void reset() {
         this.playing = false;
+        this.gameNeedsReset = false;
+        this.roundInProgress = false;
 
         int re1 = randomEntrance();
         int re2 = randomEntrance();
@@ -98,8 +98,8 @@ public class GameMap extends JPanel {
                     type = "open";
                 }
 
-                if ((r == 0 && c == 0) || (r == ARRAY_SIZE - 1 && c == ARRAY_SIZE - 1) || (r == 0 && c == re1)
-                        || (r == re2 && c == 0)) {
+                if ((r == 0 && c == 0) || (r == ARRAY_SIZE - 1 && c == ARRAY_SIZE - 1) 
+                        || (r == 0 && c == re1) || (r == re2 && c == 0)) {
                     type = "open";
                 }
 
@@ -112,7 +112,8 @@ public class GameMap extends JPanel {
         startNodes[1] = tileMap[0][re1];
         startNodes[2] = tileMap[re2][0];
 
-        TreeMap<Integer, LinkedList<Tile>> paths = findPaths(startNodes, tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
+        TreeMap<Integer, LinkedList<Tile>> paths = findPaths(startNodes, 
+                tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
 
         if (paths == null) {
             reset();
@@ -152,34 +153,7 @@ public class GameMap extends JPanel {
             this.enemies = new HashSet<Enemy>();
             this.enemyQueue = new LinkedList<Enemy>();
 
-            addTower(tileMap[ARRAY_SIZE - 2][ARRAY_SIZE - 2], "shooter");
-            addTower(tileMap[1][ARRAY_SIZE - 3], "shooter");
-            addTower(tileMap[1][ARRAY_SIZE - 10], "shooter");
-
-//          Enemy enemyTest = new BasicEnemy(10, 10, Color.RED, this.paths.get(0), MAP_SIZE);
-//          Enemy enemyTest2 = new BasicEnemy(10, 10, Color.BLUE, this.paths.get(0), MAP_SIZE);
-//          Enemy enemyTest3 = new BasicEnemy(5, 10, Color.YELLOW, this.paths.get(0), MAP_SIZE);
-//
-//          enqEnemyQueue(enemyTest);
-//          enqEnemyQueue(enemyTest2);
-//          enqEnemyQueue(enemyTest3);
-
-//            ShooterTower towerTest1 = new ShooterTower(tileMap[ARRAY_SIZE - 2][ARRAY_SIZE - 2], MAP_SIZE);
-//            ShooterTower towerTest2 = new ShooterTower(tileMap[1][ARRAY_SIZE - 3], MAP_SIZE);
-//            ShooterTower towerTest3 = new ShooterTower(tileMap[1][ARRAY_SIZE - 10], MAP_SIZE);
-//
-//            this.towers.add(towerTest1);
-//            this.towers.add(towerTest2);
-//            this.towers.add(towerTest3);
-
-//            this.projectiles.add(towerTest2.getProjs());
-//            this.projectiles.add(towerTest1.getProjs());
-//            this.projectiles.add(towerTest3.getProjs());
-
             this.mainTimer.start();
-
-            // TEMPROARY!!
-            startGame();
 
             setFocusable(true);
             requestFocusInWindow();
@@ -231,14 +205,10 @@ public class GameMap extends JPanel {
 
             for (Enemy enemy : removeEnemies) {
                 enemies.remove(enemy);
-//                System.out.println(enemies.remove(enemy));
             }
 
             if (lookupTile != null && nextEnemy != null && addNewEnemy) {
-//                System.out.println("Contains: " + enemies.contains(nextEnemy));
                 enemies.add(deqEnemyQueue());
-//                System.out.println("EQ: " + enemyQueue.size());
-//                System.out.println("Enemies: " + enemies.size());
             }
         }
 
@@ -249,7 +219,6 @@ public class GameMap extends JPanel {
 
                     for (Projectile p : group) {
                         p.move();
-//                        p.hitEnemy(p.getTarget());
 
                         for (Enemy enemy : enemies) {
                             if (p.hitEnemy(enemy) || p.outOfBounds()) {
@@ -267,32 +236,26 @@ public class GameMap extends JPanel {
             }
         }
 
-        // check for the game end conditions
-//        if (square.intersects(poison)) {
-//            playing = false;
-//            status.setText("You lose!");
-//        } else if (square.intersects(snitch)) {
-//            playing = false;
-//            status.setText("You win!");
-//        }
-
         repaint();
     }
 
     public void clearAllInfoButtons() {
-        info_button_1.setText(" ");
-        for (ActionListener actionListener : this.info_button_1.getActionListeners()) {
-            this.info_button_1.removeActionListener(actionListener);
+        infoButton1.setText(" ");
+        for (ActionListener actionListener : this.infoButton1.getActionListeners()) {
+            this.infoButton1.removeActionListener(actionListener);
         }
-        info_button_2.setText(" ");
-        for (ActionListener actionListener : this.info_button_2.getActionListeners()) {
-            this.info_button_2.removeActionListener(actionListener);
+        infoButton2.setText(" ");
+        for (ActionListener actionListener : this.infoButton2.getActionListeners()) {
+            this.infoButton2.removeActionListener(actionListener);
         }
     }
 
     public void selectTile(Tile tile, String messageText) {
         clearAllInfoButtons();
-        
+
+        String addTowerMessage = addSelectedTower(tile);
+        this.selectedTower = null;
+
         if (messageText != "TOWER SOLD") {
             this.selectedTile = tile;
 
@@ -312,8 +275,8 @@ public class GameMap extends JPanel {
 
                         text = type + " - " + "Level: " + tower.getLevel();
 
-                        info_button_1.setText("upgrade");
-                        this.info_button_1.addActionListener(new ActionListener() {
+                        infoButton1.setText("UPGRADE (-" + tower.getUpgradeCost() + ")");
+                        this.infoButton1.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 int cost = tower.getUpgradeCost();
                                 String transaction = "";
@@ -329,8 +292,8 @@ public class GameMap extends JPanel {
                             }
                         });
 
-                        info_button_2.setText("sell");
-                        this.info_button_2.addActionListener(new ActionListener() {
+                        infoButton2.setText("SELL(+" + tower.getInitialCost() + ")");
+                        this.infoButton2.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 removeTower(tile);
                                 selectTile(selectedTile, "TOWER SOLD");
@@ -345,13 +308,28 @@ public class GameMap extends JPanel {
                 text = "TILE NOT SELECTABLE";
             }
 
-            this.info_label.setText(text + " - " + messageText);
+            this.infoLabel.setText(addTowerMessage + " - " + text + " - " + messageText);
         } else {
-            this.info_label.setText("EMPTY TILE");
-        } 
-        
+            this.infoLabel.setText(addTowerMessage + " - " + "EMPTY TILE");
+        }
+
         repaint();
-//        this.info_label.setText("SelectedTile: " + selectedTile.getCol() + ", " + selectedTile.getRow());
+    }
+
+    public void setSelectedTower(String tower) {
+        this.selectedTower = tower;
+    }
+
+    public String addSelectedTower(Tile tile) {
+        String message = "";
+
+        if (this.selectedTower != null) {
+            message = buyTower(tile, this.selectedTower);
+
+            this.selectedTower = null;
+        }
+
+        return message;
     }
 
     private void stopAllTimers() {
@@ -374,8 +352,15 @@ public class GameMap extends JPanel {
             this.roundInProgress = true;
             this.coinTimer.start();
             enqEnemyQueue(chooseRandomEnemy());
-//            startNextRound();
         }
+    }
+    
+    public boolean isPlaying() {
+        return this.playing;
+    }
+    
+    public boolean gameNeedsReset() {
+        return this.gameNeedsReset;
     }
 
     private void startNextRound() {
@@ -389,12 +374,7 @@ public class GameMap extends JPanel {
     }
 
     private void endRound() {
-//        System.out.println("Round in progress" + roundInProgress);
-//        System.out.println("Enemy Queue Empty: " + this.enemyQueue.size());
-//        System.out.println("Enemies empty: " + this.enemies.size());
-
         if (roundInProgress && this.enemyQueue.isEmpty() && this.enemies.isEmpty()) {
-//            System.out.println("============================================================================");
             this.roundInProgress = false;
             this.coinTimer.stop();
             updateRounds(this.roundCount + 1);
@@ -405,9 +385,12 @@ public class GameMap extends JPanel {
 
     private void playerLose() {
         this.playing = false;
+        this.gameNeedsReset = true;
+        this.roundInProgress = false;
         stopAllTimers();
-        this.timer_label.setText("(YOU");
-        this.coins_label.setText("LOST!)");
+        this.roundLabel.setText("SURVIVED TO ROUND: " + this.roundCount);
+        this.timerLabel.setText("(YOU");
+        this.coinsLabel.setText("LOST!)");
     }
 
     private Enemy chooseRandomEnemy() {
@@ -434,8 +417,7 @@ public class GameMap extends JPanel {
 
     private void updateCoins(int coins) {
         this.coinCount = coins;
-        this.coins_label.setText("Coins: " + coins);
-//        this.coins_label.repaint();
+        this.coinsLabel.setText("Coins: " + coins);
     }
 
     private void incrCoins() {
@@ -444,14 +426,12 @@ public class GameMap extends JPanel {
 
     private void updateRounds(int round) {
         this.roundCount = round;
-        this.round_label.setText("Round: " + round);
-//        this.coins_label.repaint();
+        this.roundLabel.setText("Round: " + round);
     }
 
     private void updateTimer(int time) {
         this.timeRemaining = time;
-        this.timer_label.setText("Next Round Starts in: " + time);
-//        this.timer_label.repaint();
+        this.timerLabel.setText("Next Round Starts in: " + time);
     }
 
     private void decrTimeRemaining() {
@@ -464,26 +444,41 @@ public class GameMap extends JPanel {
         }
     }
 
-    public void addTower(Tile tile, String towerType) {
+    public String buyTower(Tile tile, String towerType) {
+        String message = "";
+
         if (tile.getTower() == null && tile.getType() == "block") {
             Tower tower = null;
             switch (towerType) {
-            case "shooter":
-                tower = new ShooterTower(MAP_SIZE, tile);
-                break;
-            default:
-                break;
+                case "SHOOTER":
+                    tower = new ShooterTower(MAP_SIZE, tile);
+                    break;
+                default:
+                    break;
             }
 
             if (tower != null) {
-                tile.setTower(tower);
-                this.towers.add(tower);
+                int cost = tower.getInitialCost();
+                if (this.coinCount >= cost) {
+                    updateCoins(this.coinCount - cost);
 
-                if (tower instanceof AttackTower) {
-                    this.projectiles.add(((AttackTower) tower).getProjs());
+                    tile.setTower(tower);
+                    this.towers.add(tower);
+
+                    if (tower instanceof AttackTower) {
+                        this.projectiles.add(((AttackTower) tower).getProjs());
+                    }
+
+                    message = "SUCCESSFUL PURCHASE";
+                } else {
+                    message = "INSUFFICIENT COINS";
                 }
             }
+        } else {
+            message = "TILE UNAVAILABLE";
         }
+
+        return message;
     }
 
     public void removeTower(Tile tile) {
@@ -545,10 +540,6 @@ public class GameMap extends JPanel {
         } else {
             System.out.println("found paths!");
 
-//            for (int i = 0; i < paths.size(); i++) {
-//                PathFinder.printPath(paths.get(i));
-//            }
-
             return paths;
         }
 
@@ -587,13 +578,12 @@ public class GameMap extends JPanel {
         super.paintComponent(g);
         drawTiles(g);
 
-        if (SHOW_PATHS) {
+        if (showPaths) {
             drawPaths(g, this.paths);
         }
 
         if (enemies != null) {
             if (!enemies.isEmpty()) {
-//                System.out.println("Enemies size: " + enemies.size());
                 for (Enemy enemy : enemies) {
                     enemy.draw(g);
                 }
@@ -605,9 +595,7 @@ public class GameMap extends JPanel {
                 for (HashSet<Projectile> group : projectiles) {
                     if (group != null) {
                         if (!group.isEmpty()) {
-//                            System.out.println("Proj size: " + group.size());
                             for (Projectile p : group) {
-//                                System.out.println("Proj pos: " + p.getPx() + ", " + p.getPy());
                                 p.draw(g);
                             }
                         }

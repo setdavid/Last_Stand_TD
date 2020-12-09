@@ -16,12 +16,12 @@ public class Game implements Runnable {
 
         // Info
         final JPanel info_panel = new JPanel();
-        final JLabel info_label = new JLabel(" ");
-        final JButton info_button_1 = new JButton(" ");
-        final JButton info_button_2 = new JButton(" ");
-        info_panel.add(info_label);
-        info_panel.add(info_button_1);
-        info_panel.add(info_button_2);
+        final JLabel infoLabel = new JLabel(" ");
+        final JButton infoButton1 = new JButton(" ");
+        final JButton infoButton2 = new JButton(" ");
+        info_panel.add(infoLabel);
+        info_panel.add(infoButton1);
+        info_panel.add(infoButton2);
 
         // Status
         final JPanel status_panel = new JPanel();
@@ -34,35 +34,43 @@ public class Game implements Runnable {
         status_panel.add(coins_label);
 
         // Main playing area
-        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label, info_label, info_button_1, info_button_2);
+        final GameMap gameMap = new GameMap(round_label, timer_label, coins_label, 
+                infoLabel, infoButton1, infoButton2);
 
         // Game Control Panel
         final JPanel game_panel = new JPanel();
-        final JButton addShooterTower = new JButton("Shooter Tower (" + ShooterTower.INITIAL_COST + ")");
-        addShooterTower.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                gameMap.clearAllInfoButtons();
-                info_label.setText("Choose block to add shooter tower");
-            }
-        });
+        final JButton addShooterTower = new JButton("Shooter Tower (-" + 
+                ShooterTower.INITIAL_COST + ")");
+        addActionListenerTowerButton(gameMap, infoLabel, infoButton1, addShooterTower, "SHOOTER");
 
         game_panel.add(addShooterTower);
 
-        // User High Score Panel
-        final JPanel user_panel = new JPanel();
-        final JButton reset = new JButton("Reset");
+        // Score Panel
+        final JPanel score_panel = new JPanel();
+        final JButton reset = new JButton("RESET GAME");
         reset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 gameMap.clearAllInfoButtons();
-                info_label.setText("RESET");
+                infoLabel.setText("RESET");
                 gameMap.reset();
             }
         });
-        user_panel.add(reset);
+        final JButton start = new JButton("START GAME");
+        start.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gameMap.clearAllInfoButtons();
+                infoLabel.setText("GAME START!");
+                if (!gameMap.isPlaying() && !gameMap.gameNeedsReset()) {
+                    gameMap.startGame();
+                }
+            }
+        });
+        score_panel.add(start);
+        score_panel.add(reset);
 
         frame.add(info_panel, BorderLayout.SOUTH);
         frame.add(game_panel, BorderLayout.EAST);
-        frame.add(user_panel, BorderLayout.WEST);
+        frame.add(score_panel, BorderLayout.WEST);
         frame.add(status_panel, BorderLayout.NORTH);
         frame.add(gameMap, BorderLayout.CENTER);
 
@@ -73,6 +81,25 @@ public class Game implements Runnable {
 
         // Start game
 //        court.reset();
+    }
+
+    public void addActionListenerTowerButton(GameMap gameMap, JLabel infoLabel, 
+            JButton infoButton1, JButton button, String towerType) {
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gameMap.clearAllInfoButtons();
+                gameMap.setSelectedTower(towerType);
+                infoLabel.setText("CHOOSE BLOCK TO ADD " + towerType + " TOWER");
+                infoButton1.setText("CANCEL");
+                infoButton1.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        infoLabel.setText(" ");
+                        gameMap.clearAllInfoButtons();
+                        gameMap.setSelectedTower(null);
+                    }
+                });
+            }
+        });
     }
 
     /**

@@ -11,8 +11,6 @@ public class Tile extends PFNode {
 
     private Tower tower = null;
 
-//    private PFNode pfNode;
-
     public Tile(int px, int py, int row, int col, int size, String type) {
         super(row, col);
 

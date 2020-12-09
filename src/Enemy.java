@@ -1,6 +1,3 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -31,17 +28,10 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
         incrementProgress();
 
         GameObj.positionToCenter(this, this.currTarget);
-
-//        System.out.println("FirstTile: " + currTarget.getCol() + ", " + currTarget.getRow());
-//        System.out.println("First: " + this.getPx() + ", " + this.getPy());
-
-//        advancePath();
     }
 
     private void incrementProgress() {
         this.progress += this.progressIncr;
-//        System.out.println("Speed: " + this.speed);
-//        System.out.println("Progress: " + this.progress);
     }
 
     public double getProgress() {
@@ -61,10 +51,6 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
         int[] ccTarget = GameObj.centerCoords(currTarget.getPx(), currTarget.getPy(), currTarget.getSize(),
                 currTarget.getSize());
         boolean allowAdvance = false;
-
-//        System.out.println("TargetTile: " + currTarget.getCol() + ", " + currTarget.getRow());
-//        System.out.println("Target: " + ccTarget[0] + ", " + ccTarget[1]);
-
         if ((direction == Direction.UP) && (ccThis[1] <= ccTarget[1])) {
             allowAdvance = true;
             this.setPy(this.getPy() + (ccTarget[1] - ccThis[1]));
@@ -126,29 +112,12 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
         clip();
     }
 
-//    @Override
-//    public boolean equals(Object that) {
-//        if (that == null) {
-//            return this == null;
-//        } else {
-//            if (that instanceof Enemy) {
-//                Enemy other = (Enemy) that;
-//                return this == other;
-////                return ((this.iterator.equals(other.iterator)) && (this.progress == other.getProgress())
-////                        && (this.speed == other.getSpeed()));
-//            } else {
-//                return false;
-//            }
-//        }
-//    }
-    
     @Override
     public int compareTo(Enemy e2) {
         double e1P = this.progress;
         double e2P = e2.getProgress();
         
         if (e1P == e2P) {
-//            System.out.println("found equal");
             return 0;
         } else if (e1P > e2P) {
             return 1;
