@@ -8,8 +8,8 @@ public class ShooterTower extends AttackTower {
 
     private int damage;
 
-    public ShooterTower(int mapSize, Tile homeTile) {
-        super(mapSize, homeTile, INITIAL_COST, RANGE, FIRE_INTERVAL, 0);
+    public ShooterTower(GameMap gameMap, int mapSize, Tile homeTile) {
+        super(gameMap, mapSize, homeTile, INITIAL_COST, RANGE, FIRE_INTERVAL, 0);
 
         this.damage = 5;
     }

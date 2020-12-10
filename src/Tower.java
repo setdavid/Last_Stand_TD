@@ -1,5 +1,5 @@
 
-public abstract class Tower extends GameObj {
+public abstract class Tower extends GameObj implements Comparable<Tower> {
     private Tile homeTile;
 
     private int initialCost;
@@ -80,6 +80,20 @@ public abstract class Tower extends GameObj {
         }
     }
 
+    @Override 
+    public int compareTo(Tower that) {
+        if (this.getHomeTile() == that.getHomeTile()) {
+            return 0;
+        } else if (this.getHomeTile().getRow() < that.getHomeTile().getRow()) {
+            return 1;
+        } else if (this.getHomeTile().getRow() == that.getHomeTile().getRow() 
+                && this.getHomeTile().getCol() < that.getHomeTile().getCol()) {
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+    
     public abstract void level1();
 
     public abstract void level2();

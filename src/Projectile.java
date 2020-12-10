@@ -1,5 +1,5 @@
 
-public abstract class Projectile extends GameObj {
+public abstract class Projectile extends GameObj implements Comparable<Projectile> {
     private Enemy target;
     private final int SPEED = 15;
 
@@ -67,6 +67,19 @@ public abstract class Projectile extends GameObj {
     public boolean outOfBounds() {
         return ((this.getPx() < 0) || (this.getPx() > this.getMaxX()) || (this.getPy() < 0)
                 || (this.getPy() > this.getMaxY()));
+    }
+
+    @Override
+    public int compareTo(Projectile proj) {
+        if (this == proj && this.getTarget() == proj.getTarget() && this.getPx() == proj.getPx() 
+                && this.getPy() == proj.getPy()) {
+            return 0;
+        } else if ((this.getPx() < proj.getPx()) || 
+                (this.getPx() == proj.getPx() && this.getPy() < proj.getPy())) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 
     public abstract void affectEnemy(Enemy enemy);

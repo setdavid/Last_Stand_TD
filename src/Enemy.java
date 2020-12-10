@@ -127,7 +127,7 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
     }
 
     public void takeDamage(int damage) {
-        System.out.println("Speed: " + this.speed + ", " + "HP: " + this.hp);
+//        System.out.println("Speed: " + this.speed + ", " + "HP: " + this.hp);
         this.hp -= damage;
     }
 

@@ -30,7 +30,7 @@ public abstract class RangeTower extends Tower {
         boolean atLeastOneEnemy = false;
 
         for (Enemy enemy : enemies) {
-            if (enemyWithinRange(enemy)) {
+            if (enemyWithinRange(enemy) && !enemy.isDead()) {
                 atLeastOneEnemy = true;
                 enemiesInRange.add(enemy);
             }
