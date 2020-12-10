@@ -1,8 +1,6 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -15,7 +13,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 
 public class GameMap extends JPanel {
-    
+
     private final Game game;
 
     public static final int MAP_SIZE = 600;
@@ -31,7 +29,7 @@ public class GameMap extends JPanel {
     private JLabel infoSubLabel;
     private JButton infoButton1;
     private JButton infoButton2;
-    
+
     private JLabel[] highScoreLabels;
 
     private Timer mainTimer = null;
@@ -63,17 +61,18 @@ public class GameMap extends JPanel {
     private TreeSet<Enemy> enemies;
     private LinkedList<Enemy> enemyQueue;
 
-    public GameMap(Game game, JLabel roundLabel, JLabel timerLabel, JLabel coinsLabel, JLabel infoLabel, JLabel infoSubLabel,
-            JButton infoButton1, JButton infoButton2, JLabel[] highScoreLabels) {
+    public GameMap(Game game, JLabel roundLabel, JLabel timerLabel, JLabel coinsLabel,
+            JLabel infoLabel, JLabel infoSubLabel, JButton infoButton1, JButton infoButton2,
+            JLabel[] highScoreLabels) {
         this.game = game;
-        
+
         this.tileMap = new Tile[ARRAY_SIZE][ARRAY_SIZE];
 
         this.infoLabel = infoLabel;
         this.infoSubLabel = infoSubLabel;
         this.infoButton1 = infoButton1;
         this.infoButton2 = infoButton2;
-        
+
         this.highScoreLabels = highScoreLabels;
 
         this.timerLabel = timerLabel;
@@ -96,11 +95,11 @@ public class GameMap extends JPanel {
         this.playing = false;
         this.gameNeedsReset = false;
         this.roundInProgress = false;
-        
+
         stopAllTimers();
-        
+
         Game.refreshHighScores(this.highScoreLabels);
-        
+
         int re1 = randomEntrance();
         int re2 = randomEntrance();
 
@@ -113,8 +112,8 @@ public class GameMap extends JPanel {
                     type = "open";
                 }
 
-                if ((r == 0 && c == 0) || (r == ARRAY_SIZE - 1 && c == ARRAY_SIZE - 1) || (r == 0 && c == re1)
-                        || (r == re2 && c == 0)) {
+                if ((r == 0 && c == 0) || (r == ARRAY_SIZE - 1 && c == ARRAY_SIZE - 1)
+                        || (r == 0 && c == re1) || (r == re2 && c == 0)) {
                     type = "open";
                 }
 
@@ -127,7 +126,8 @@ public class GameMap extends JPanel {
         startNodes[1] = tileMap[0][re1];
         startNodes[2] = tileMap[re2][0];
 
-        TreeMap<Integer, LinkedList<Tile>> paths = findPaths(startNodes, tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
+        TreeMap<Integer, LinkedList<Tile>> paths = findPaths(startNodes,
+                tileMap[ARRAY_SIZE - 1][ARRAY_SIZE - 1]);
 
         if (paths == null) {
             reset();
@@ -184,7 +184,6 @@ public class GameMap extends JPanel {
                 }
             }
 
-            LinkedList<Enemy> removeEnemies = new LinkedList<Enemy>();
             boolean addNewEnemy = true;
             Enemy nextEnemy = null;
             Tile lookupTile = null;
@@ -193,6 +192,8 @@ public class GameMap extends JPanel {
                 nextEnemy = enemyQueue.getFirst();
                 lookupTile = nextEnemy.getPath().getFirst();
             }
+
+            LinkedList<Enemy> removeEnemies = new LinkedList<Enemy>();
 
             for (Enemy enemy : enemies) {
                 enemy.move();
@@ -211,6 +212,9 @@ public class GameMap extends JPanel {
                     }
                 }
             }
+
+//            enemies.removeAll(removeEnemies);
+//            System.out.println(enemies.size());
 
             for (Enemy enemy : removeEnemies) {
                 enemies.remove(enemy);
@@ -355,7 +359,7 @@ public class GameMap extends JPanel {
         if (this.coinTimer != null) {
             this.coinTimer.stop();
         }
-        
+
         if (this.towers != null) {
             for (Tower tower : this.towers) {
                 if (tower instanceof AttackTower) {
@@ -403,27 +407,30 @@ public class GameMap extends JPanel {
     }
 
     private void playerLose() {
-        this.playing = false;
-        this.gameNeedsReset = true;
-        this.roundInProgress = false;
-        stopAllTimers();
-        this.roundLabel.setText("SURVIVED TO ROUND: " + this.roundCount);
-        this.timerLabel.setText("(YOU");
-        this.coinsLabel.setText("LOST!)");
-        this.game.updateHighScores("files/high_scores.txt", this.game, this.roundCount);
+        if (this.playing) {
+            this.playing = false;
+            this.gameNeedsReset = true;
+            this.roundInProgress = false;
+            stopAllTimers();
+            this.roundLabel.setText("SURVIVED TO ROUND: " + this.roundCount);
+            this.timerLabel.setText("(YOU");
+            this.coinsLabel.setText("LOST!)");
+            Game.updateHighScores("files/high_scores.txt", this.game.getFrame(),
+                    this.highScoreLabels, this.roundCount);
+        }
     }
 
     private Enemy chooseRandomEnemy() {
         double randomNum = Math.random();
         double redEnemyProb = 0.05;
         double blueEnemyProb = 0.2;
-        
+
         if (randomNum <= redEnemyProb) {
             return new BasicEnemy(3, 50, Color.RED, chooseRandomPath(), MAP_SIZE);
         } else if (randomNum >= (1 - blueEnemyProb)) {
             return new BasicEnemy(2, 30, Color.BLUE, chooseRandomPath(), MAP_SIZE);
         } else {
-            return new BasicEnemy(2, 10, Color.GREEN, chooseRandomPath(), MAP_SIZE);
+            return new BasicEnemy(10, 10, Color.GREEN, chooseRandomPath(), MAP_SIZE);
         }
     }
 
@@ -472,11 +479,11 @@ public class GameMap extends JPanel {
         if (tile.getTower() == null && tile.getType() == "block") {
             Tower tower = null;
             switch (towerType) {
-            case "SHOOTER":
-                tower = new ShooterTower(this, MAP_SIZE, tile);
-                break;
-            default:
-                break;
+                case "SHOOTER":
+                    tower = new ShooterTower(this, MAP_SIZE, tile);
+                    break;
+                default:
+                    break;
             }
 
             if (tower != null) {

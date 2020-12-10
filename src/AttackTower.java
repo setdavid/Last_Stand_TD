@@ -1,7 +1,6 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.TreeSet;
 
 import javax.swing.Timer;
@@ -12,8 +11,8 @@ public abstract class AttackTower extends RangeTower {
     private int accuracy;
     private GameMap gameMap;
 
-    public AttackTower(GameMap gameMap, int mapSize, Tile homeTile, int initialCost, int range, int fireInterval,
-            int accuracy) {
+    public AttackTower(GameMap gameMap, int mapSize, Tile homeTile, int initialCost, int range,
+            int fireInterval, int accuracy) {
         super(mapSize, homeTile, initialCost, range);
 
         this.gameMap = gameMap;

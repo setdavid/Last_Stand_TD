@@ -1,13 +1,14 @@
 
 public abstract class Projectile extends GameObj implements Comparable<Projectile> {
     private Enemy target;
-    private final int SPEED = 15;
+    public static final int SPEED = 15;
 
     private int accuracy;
     private int hitEnemies;
     private int reAdjustFreqTracker = 1;
 
-    public Projectile(int px, int py, int width, int height, int mapSize, Enemy target, int accuracy, int hitEnemies) {
+    public Projectile(int px, int py, int width, int height, int mapSize, Enemy target,
+            int accuracy, int hitEnemies) {
         super(0, 0, px, py, width, height, mapSize);
 
         this.target = target;
@@ -71,11 +72,11 @@ public abstract class Projectile extends GameObj implements Comparable<Projectil
 
     @Override
     public int compareTo(Projectile proj) {
-        if (this == proj && this.getTarget() == proj.getTarget() && this.getPx() == proj.getPx() 
+        if (this == proj && this.getTarget() == proj.getTarget() && this.getPx() == proj.getPx()
                 && this.getPy() == proj.getPy()) {
             return 0;
-        } else if ((this.getPx() < proj.getPx()) || 
-                (this.getPx() == proj.getPx() && this.getPy() < proj.getPy())) {
+        } else if ((this.getPx() < proj.getPx())
+                || (this.getPx() == proj.getPx() && this.getPy() < proj.getPy())) {
             return 1;
         } else {
             return -1;

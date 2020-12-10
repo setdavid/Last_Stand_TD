@@ -2,7 +2,8 @@
 public abstract class AttackProjectile extends Projectile {
     private int damage;
 
-    public AttackProjectile(int px, int py, int width, int height, int mapSize, Enemy target, int damage, int accuracy, int hitEnemies) {
+    public AttackProjectile(int px, int py, int width, int height, int mapSize, Enemy target,
+            int damage, int accuracy, int hitEnemies) {
         super(px, py, width, height, mapSize, target, accuracy, hitEnemies);
 
         this.damage = damage;

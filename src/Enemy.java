@@ -7,7 +7,7 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
 
     private LinkedList<Tile> path;
     private Iterator<Tile> iterator;
-    
+
     private Tile currTarget;
     private Direction direction;
     private double progress;
@@ -47,9 +47,10 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
     }
 
     public void checkAdvance() {
-        int[] ccThis = GameObj.centerCoords(this.getPx(), this.getPy(), this.getWidth(), this.getHeight());
-        int[] ccTarget = GameObj.centerCoords(currTarget.getPx(), currTarget.getPy(), currTarget.getSize(),
-                currTarget.getSize());
+        int[] ccThis = GameObj.centerCoords(this.getPx(), this.getPy(), this.getWidth(),
+                this.getHeight());
+        int[] ccTarget = GameObj.centerCoords(currTarget.getPx(), currTarget.getPy(),
+                currTarget.getSize(), currTarget.getSize());
         boolean allowAdvance = false;
         if ((direction == Direction.UP) && (ccThis[1] <= ccTarget[1])) {
             allowAdvance = true;
@@ -116,7 +117,7 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
     public int compareTo(Enemy e2) {
         double e1P = this.progress;
         double e2P = e2.getProgress();
-        
+
         if (e1P == e2P) {
             return 0;
         } else if (e1P > e2P) {

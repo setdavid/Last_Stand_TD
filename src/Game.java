@@ -55,12 +55,13 @@ public class Game implements Runnable {
         }
 
         // Main playing area
-        final GameMap gameMap = new GameMap(this, round_label, timer_label, coins_label, infoLabel, infoSubLabel,
-                infoButton1, infoButton2, highScoreLabels);
+        final GameMap gameMap = new GameMap(this, round_label, timer_label, coins_label, infoLabel,
+                infoSubLabel, infoButton1, infoButton2, highScoreLabels);
 
         // Game Control Panel
         final JPanel game_panel = new JPanel();
-        final JButton addShooterTower = new JButton("Shooter Tower (-" + ShooterTower.INITIAL_COST + ")");
+        final JButton addShooterTower = new JButton(
+                "Shooter Tower (-" + ShooterTower.INITIAL_COST + ")");
         addActionListenerTowerButton(gameMap, infoLabel, infoButton1, addShooterTower, "SHOOTER");
 
         game_panel.add(addShooterTower);
@@ -82,9 +83,10 @@ public class Game implements Runnable {
                 gameMap.clearAllInfoComps();
                 gameMap.setSelectedTower(null);
                 infoLabel.setText("GAME START!");
-                if (!gameMap.isPlaying() && !gameMap.gameNeedsReset()) {
-                    gameMap.startGame();
+                if (gameMap.gameNeedsReset()) {
+                    gameMap.reset();
                 }
+                gameMap.startGame();
             }
         });
         final JPanel score_box = new JPanel();
@@ -116,8 +118,8 @@ public class Game implements Runnable {
 //        court.reset();
     }
 
-    public void addActionListenerTowerButton(GameMap gameMap, JLabel infoLabel, JButton infoButton1, JButton button,
-            String towerType) {
+    public void addActionListenerTowerButton(GameMap gameMap, JLabel infoLabel, JButton infoButton1,
+            JButton button, String towerType) {
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 gameMap.clearAllInfoComps();
@@ -140,28 +142,6 @@ public class Game implements Runnable {
 
     public static void refreshHighScores(JLabel[] highScoreLabels) {
         String[][] highScores = getHighScores("files/high_scores.txt");
-        if (highScores != null) {
-            for (int i = 0; i < highScores.length; i++) {
-                highScoreLabels[i].setText(highScores[i][0] + ": " + highScores[i][1]);
-            }
-        }
-    }
-
-    public static void updateHighScore(JLabel[] highScoreLabels, int newScore) {
-        String[][] highScores = getHighScores("files/high_scores.txt");
-        int lowestScore;
-
-        try {
-            lowestScore = Integer.parseInt(highScores[highScores.length - 1][1]);
-        } catch (NumberFormatException e) {
-            lowestScore = -1;
-        }
-
-        if (lowestScore > 0 && newScore > lowestScore) {
-//            updateHighScores("files/high_scores.txt", newScore);
-            highScores = getHighScores("files/high_scores.txt");
-        }
-
         if (highScores != null) {
             for (int i = 0; i < highScores.length; i++) {
                 highScoreLabels[i].setText(highScores[i][0] + ": " + highScores[i][1]);
@@ -316,74 +296,97 @@ public class Game implements Runnable {
         }
     }
 
-    public void updateHighScores(String filePath, Game game, int newScore) {
+    public static void updateHighScores(String filePath, Frame frame, JLabel[] highScoreLabels,
+            int newScore) {
         BufferedWriter buffWriter = null;
         FileWriter fileWriter = null;
-        String[][] highScores = null;
+        String[][] highScores = getHighScores(filePath);
+        String[][] newStringArr = new String[highScores.length + 1][2];
 
-        try {
-            if (filePath != null) {
-                highScores = getHighScores(filePath);
-                fileWriter = new FileWriter(filePath, false);
-                System.out.println("Length high scores: " + highScores.length);
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("file doesnt exist");
-        } catch (IOException e) {
-        } finally {
-            if (fileWriter != null) {
-                buffWriter = new BufferedWriter(fileWriter);
+        if (highScores != null) {
+            int lowestScore;
 
-                if (highScores != null) {
-                    String[][] newStringArr = new String[highScores.length + 1][2];
-
-                    int lowestScore;
-
-                    if (highScores.length > 0) {
-                        try {
-                            lowestScore = Integer.parseInt(highScores[highScores.length - 1][1]);
-                        } catch (NumberFormatException e) {
-                            lowestScore = -1;
-                        }
-                    } else {
-                        lowestScore = -1;
-                    }
-
-                    if (newScore > lowestScore) {
-                        String inputName = JOptionPane.showInputDialog(frame, "Please enter a username.", "Username",
-                                JOptionPane.PLAIN_MESSAGE);
-
-                        if (highScores.length > 0) {
-                            for (int i = 0; i < highScores.length; i++) {
-                                System.out.println("newStringArr.length: " + newStringArr.length);
-                                newStringArr[i][0] = highScores[i][0];
-                                newStringArr[i][1] = highScores[i][1];
-                            }
-                        }
-                        
-                        newStringArr[newStringArr.length - 1][0] = inputName;
-                        newStringArr[newStringArr.length - 1][1] = "" + newScore;
-
-                        String[][] refinedArr = selectionSortTop10(newStringArr);
-
-                        boolean continueWriting = true;
-                        for (int i = 0; i < refinedArr.length && continueWriting; i++) {
-                            try {
-                                buffWriter.write(refinedArr[i][0] + " " + refinedArr[i][1]);
-                            } catch (IOException e) {
-                                continueWriting = false;
-                            }
-                        }
-                    }
-
+            if (highScores.length > 0) {
+                try {
+                    lowestScore = Integer.parseInt(highScores[highScores.length - 1][1]);
+                } catch (NumberFormatException e) {
+                    lowestScore = -1;
                 }
+            } else {
+                lowestScore = -1;
+            }
+
+            System.out.println("lowest score: " + lowestScore);
+
+            if (newScore > lowestScore || highScores.length < 10) {
+                FileWriter testFileFound = null;
+
+                try {
+                    if (filePath != null) {
+                        // Used to check if file found before deleting contents
+                        testFileFound = new FileWriter(filePath, true);
+                        System.out.println("Length high scores: " + highScores.length);
+                    }
+                } catch (FileNotFoundException e) {
+                    testFileFound = null;
+                    System.out.println("file doesnt exist");
+                } catch (IOException e) {
+                } finally {
+                    if (testFileFound != null) {
+                        try {
+                            if (filePath != null) {
+                                fileWriter = new FileWriter(filePath, false);
+                            }
+                        } catch (FileNotFoundException e) {
+                            fileWriter = null;
+                            System.out.println("file doesnt exist");
+                        } catch (IOException e) {
+                        } finally {
+                            if (fileWriter != null) {
+                                buffWriter = new BufferedWriter(fileWriter);
+
+                                String inputName = JOptionPane.showInputDialog(frame,
+                                        "Please enter a username.", "Username",
+                                        JOptionPane.PLAIN_MESSAGE);
+
+                                newStringArr[newStringArr.length - 1][0] = inputName;
+                                newStringArr[newStringArr.length - 1][1] = "" + newScore;
+
+                                if (highScores.length > 0) {
+                                    for (int i = 0; i < highScores.length; i++) {
+                                        System.out.println(
+                                                "newStringArr.length: " + newStringArr.length);
+                                        newStringArr[i][0] = highScores[i][0];
+                                        newStringArr[i][1] = highScores[i][1];
+                                    }
+                                }
+
+                                String[][] refinedArr = selectionSortTop10(newStringArr);
+
+                                boolean continueWriting = true;
+                                for (int i = 0; i < refinedArr.length && continueWriting; i++) {
+                                    try {
+                                        buffWriter.write(refinedArr[i][0] + " " + refinedArr[i][1]);
+                                        buffWriter.newLine();
+                                    } catch (IOException e) {
+                                        continueWriting = false;
+                                    }
+                                }
+
+                                try {
+                                    buffWriter.close();
+                                } catch (IOException e) {
+                                }
+
+                                refreshHighScores(highScoreLabels);
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
-        try {
-            buffWriter.close();
-        } catch (IOException e) {
-        }
     }
 
 //    inputName = JOptionPane.showInputDialog(frame, "Please enter a username test", 

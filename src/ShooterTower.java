@@ -2,22 +2,24 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class ShooterTower extends AttackTower {
-    public static int INITIAL_COST = 150;
-    private static int RANGE = 150;
-    private static int FIRE_INTERVAL = 1000;
+    public static final int INITIAL_COST = 150;
+    public static final int INITIAL_RANGE = 150;
+    public static final int INITIAL_FIRE_INTERVAL = 1000;
 
     private int damage;
 
     public ShooterTower(GameMap gameMap, int mapSize, Tile homeTile) {
-        super(gameMap, mapSize, homeTile, INITIAL_COST, RANGE, FIRE_INTERVAL, 0);
+        super(gameMap, mapSize, homeTile, INITIAL_COST, INITIAL_RANGE, INITIAL_FIRE_INTERVAL, 0);
 
         this.damage = 5;
     }
 
     @Override
     public Projectile makeProj() {
-        int[] cc = GameObj.centerCoords(this.getPx(), this.getPy(), this.getWidth(), this.getHeight());
-        return new Bullet(cc[0], cc[1], this.getMapSize(), this.damage, this.getTarget(), this.getAccuracy());
+        int[] cc = GameObj.centerCoords(this.getPx(), this.getPy(), this.getWidth(),
+                this.getHeight());
+        return new Bullet(cc[0], cc[1], this.getMapSize(), this.damage, this.getTarget(),
+                this.getAccuracy());
     }
 
     @Override
@@ -54,7 +56,8 @@ public class ShooterTower extends AttackTower {
     @Override
     public void draw(Graphics g) {
         g.setColor(Color.ORANGE);
-        g.fillRect(this.getPx(), this.getPy(), this.getHomeTile().getSize(), this.getHomeTile().getSize());
+        g.fillRect(this.getPx(), this.getPy(), this.getHomeTile().getSize(),
+                this.getHomeTile().getSize());
     }
 
 }

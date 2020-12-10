@@ -10,8 +10,8 @@ public class PathFinder {
     private final int rowDimension;
     private final int colDimension;
 
-    private final String MOVEMENT_TYPE = "nondiagonal";
-    private final boolean CUT_CORNERS = false;
+    public static final String MOVEMENT_TYPE = "nondiagonal";
+    public static final boolean CUT_CORNERS = false;
 
     private Collection<Tile> openSet;
     private Collection<Tile> closedSet;
@@ -110,20 +110,25 @@ public class PathFinder {
         return lowestFScoreNode;
     }
 
-    private void analyzeNeighbors(Tile currentNode, Tile targetNode, String movementType, boolean cutCorners) {
+    private void analyzeNeighbors(Tile currentNode, Tile targetNode, String movementType,
+            boolean cutCorners) {
         for (int row = currentNode.getRow() - 1; row <= currentNode.getRow() + 1; row++) {
             for (int col = currentNode.getCol() - 1; col <= currentNode.getCol() + 1; col++) {
                 if ((row >= 0 && row < rowDimension) && (col >= 0 && col < colDimension)
                         && !(row == currentNode.getRow() && col == currentNode.getCol())
-                        && (!closedSet.contains(tileMap[row][col])) && (tileMap[row][col].getType() != "block")) {
-                    if (moveRestrictions(movementType, cutCorners, row, col, currentNode, tileMap)) {
+                        && (!closedSet.contains(tileMap[row][col]))
+                        && (tileMap[row][col].getType() != "block")) {
+                    if (moveRestrictions(movementType, cutCorners, row, col, currentNode,
+                            tileMap)) {
                         Tile neighborNode = tileMap[row][col];
-                        double potentialGScore = currentNode.getGScore() + euclideanHFunc(currentNode, neighborNode);
+                        double potentialGScore = currentNode.getGScore()
+                                + euclideanHFunc(currentNode, neighborNode);
 
                         if (potentialGScore < neighborNode.getGScore()) {
                             neighborNode.setCameFrom(currentNode);
                             neighborNode.setGScore(potentialGScore);
-                            neighborNode.setFScore(potentialGScore + euclideanHFunc(neighborNode, targetNode));
+                            neighborNode.setFScore(
+                                    potentialGScore + euclideanHFunc(neighborNode, targetNode));
 
                             // global.updateJS.fScoreDrawUpdate(neighborNode);
                         }
@@ -133,7 +138,6 @@ public class PathFinder {
 //                            neighborNode.setInOpenSet(true);
                         }
 
-//                        global.interactionsJS.setNodesAnalyzed(global.interactionsJS.nodesAnalyzed + 1);
                     }
                 }
             }
@@ -141,8 +145,8 @@ public class PathFinder {
 
     }
 
-    private boolean moveRestrictions(String movementType, boolean cutCorners, int row, int col, Tile currentNode,
-            Tile[][] tileMap) {
+    private boolean moveRestrictions(String movementType, boolean cutCorners, int row, int col,
+            Tile currentNode, Tile[][] tileMap) {
         boolean mtAllowed = false;
         boolean ccAllowed = false;
 

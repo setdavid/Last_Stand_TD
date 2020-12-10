@@ -77,11 +77,11 @@ public abstract class GameObj {
     public int getMapSize() {
         return this.mapSize;
     }
-    
+
     public int getMaxX() {
         return this.maxX;
     }
-    
+
     public int getMaxY() {
         return this.maxY;
     }
@@ -140,8 +140,8 @@ public abstract class GameObj {
      * @return Whether this object intersects the other object.
      */
     public boolean intersects(GameObj that) {
-        return (this.px + this.width >= that.px && this.py + this.height >= that.py && that.px + that.width >= this.px
-                && that.py + that.height >= this.py);
+        return (this.px + this.width >= that.px && this.py + this.height >= that.py
+                && that.px + that.width >= this.px && that.py + that.height >= this.py);
     }
 
     /**

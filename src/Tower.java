@@ -8,7 +8,8 @@ public abstract class Tower extends GameObj implements Comparable<Tower> {
     private int level;
 
     public Tower(int mapSize, Tile homeTile, int initialCost) {
-        super(0, 0, homeTile.getPx(), homeTile.getPy(), homeTile.getSize(), homeTile.getSize(), mapSize);
+        super(0, 0, homeTile.getPx(), homeTile.getPy(), homeTile.getSize(), homeTile.getSize(),
+                mapSize);
 
         this.homeTile = homeTile;
         this.initialCost = initialCost;

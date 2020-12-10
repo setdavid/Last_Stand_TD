@@ -42,7 +42,8 @@ public class HomeBaseTower extends Tower {
     }
 
     public void changeColors() {
-        this.color = new Color((int) (255.0 * Math.random()), (int) (255.0 * Math.random()), (int) (255.0 * Math.random()));
+        this.color = new Color((int) (255.0 * Math.random()), (int) (255.0 * Math.random()),
+                (int) (255.0 * Math.random()));
     }
 
     public boolean enemyWin(Enemy enemy) {
@@ -52,7 +53,8 @@ public class HomeBaseTower extends Tower {
     @Override
     public void draw(Graphics g) {
         g.setColor(this.color);
-        g.fillRect(this.getPx(), this.getPy(), this.getHomeTile().getSize(), this.getHomeTile().getSize());
+        g.fillRect(this.getPx(), this.getPy(), this.getHomeTile().getSize(),
+                this.getHomeTile().getSize());
     }
 
 }
