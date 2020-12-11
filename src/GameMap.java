@@ -523,6 +523,10 @@ public class GameMap extends JPanel {
                     tile.setTower(tower);
                     this.towers.add(tower);
 
+                    if (towerType == "FARM") {
+                        ((FarmTower) tower).startPay();
+                    }
+
                     message = "SUCCESSFUL PURCHASE";
                 } else {
                     message = "INSUFFICIENT COINS";

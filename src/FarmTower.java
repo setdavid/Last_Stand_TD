@@ -21,7 +21,12 @@ public class FarmTower extends Tower {
                 pay();
             }
         });
-        this.timer.start();
+    }
+
+    public void startPay() {
+        if (!this.timer.isRunning()) {
+            this.timer.start();
+        }
     }
 
     public void pay() {
