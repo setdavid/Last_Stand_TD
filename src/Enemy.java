@@ -10,6 +10,8 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
 
     private Tile currTarget;
     private Direction direction;
+
+    private int distanceTraveled;
     private double progress;
     private double progressIncr;
 
@@ -23,6 +25,7 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
         this.iterator = path.listIterator();
         this.currTarget = this.iterator.next();
 
+        this.distanceTraveled = 0;
         this.progress = 0;
         this.progressIncr = 1.0 / path.size();
         incrementProgress();
@@ -32,6 +35,10 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
 
     private void incrementProgress() {
         this.progress += this.progressIncr;
+    }
+
+    public int getDistanceTraveled() {
+        return this.distanceTraveled;
     }
 
     public double getProgress() {
@@ -108,18 +115,39 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
         this.setPx(this.getPx() + this.getVx());
         this.setPy(this.getPy() + this.getVy());
 
+        this.distanceTraveled += this.getVx() + this.getVy();
+
         checkAdvance();
 
         clip();
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Enemy) {
+            Enemy enemy = (Enemy) obj;
+            return (this.progress == enemy.getProgress())
+                    && (this.distanceTraveled == enemy.getDistanceTraveled());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public int compareTo(Enemy e2) {
         double e1P = this.progress;
         double e2P = e2.getProgress();
+        int e1D = this.distanceTraveled;
+        int e2D = e2.getDistanceTraveled();
 
         if (e1P == e2P) {
-            return 0;
+            if (e1D == e2D) {
+                return 0;
+            } else if (e1D > e2D) {
+                return 1;
+            } else {
+                return -1;
+            }
         } else if (e1P > e2P) {
             return 1;
         } else {
@@ -128,7 +156,6 @@ public abstract class Enemy extends GameObj implements Comparable<Enemy> {
     }
 
     public void takeDamage(int damage) {
-//        System.out.println("Speed: " + this.speed + ", " + "HP: " + this.hp);
         this.hp -= damage;
     }
 

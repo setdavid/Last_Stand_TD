@@ -71,7 +71,6 @@ public abstract class AttackTower extends RangeTower {
     }
 
     public void shoot() {
-//        System.out.println("Shooting");
         if (!this.getTarget().isDead()) {
             gameMap.addProj(makeProj());
         }

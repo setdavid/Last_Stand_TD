@@ -1,17 +1,17 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class ShooterTower extends AttackTower {
-    public static final int INITIAL_COST = 150;
-    public static final int INITIAL_RANGE = 150;
-    public static final int INITIAL_FIRE_INTERVAL = 1000;
+public class SniperTower extends AttackTower {
+    public static final int INITIAL_COST = 200;
+    public static final int INITIAL_RANGE = 100000;
+    public static final int INITIAL_FIRE_INTERVAL = 10000;
 
     private int damage;
 
-    public ShooterTower(GameMap gameMap, int mapSize, Tile homeTile) {
+    public SniperTower(GameMap gameMap, int mapSize, Tile homeTile) {
         super(gameMap, mapSize, homeTile, INITIAL_COST, INITIAL_RANGE, INITIAL_FIRE_INTERVAL, 0);
 
-        this.damage = 1;
+        this.damage = 7;
     }
 
     @Override
@@ -29,33 +29,32 @@ public class ShooterTower extends AttackTower {
 
     @Override
     public void level2() {
-        this.setUpgradeMessage("UPGRADE RANGE");
-        setFireInterval(750);
+        this.setUpgradeMessage("UPGRADE ACCURACY");
+        setFireInterval(8000);
     }
 
     @Override
     public void level3() {
         this.setUpgradeMessage("UPGRADE DAMAGE");
-        this.setRange(200);
+        this.setAccuracy(10);
     }
 
     @Override
     public void level4() {
         this.setUpgradeMessage("ULTIMATE UPGRADE");
-        this.damage = 2;
+        this.damage = 15;
     }
 
     @Override
     public void level5() {
         this.setUpgradeMessage("MAX LEVEL");
-        this.damage = 3;
-        this.setRange(250);
-        this.setFireInterval(500);
+        this.damage = 50;
+        this.setAccuracy(10000);
     }
 
     @Override
     public void draw(Graphics g) {
-        g.setColor(Color.ORANGE);
+        g.setColor(new Color(62, 135, 82));
         g.fillRect(this.getPx(), this.getPy(), this.getHomeTile().getSize(),
                 this.getHomeTile().getSize());
     }

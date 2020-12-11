@@ -10,11 +10,11 @@ public abstract class RangeTower extends Tower {
         this.range = range;
         this.target = null;
     }
-    
+
     public Enemy getTarget() {
         return this.target;
     }
-    
+
     public void setRange(int range) {
         this.range = range;
     }

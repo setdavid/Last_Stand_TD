@@ -214,10 +214,17 @@ public class GameMap extends JPanel {
             }
 
 //            enemies.removeAll(removeEnemies);
-//            System.out.println(enemies.size());
 
             for (Enemy enemy : removeEnemies) {
-                enemies.remove(enemy);
+                TreeSet<Enemy> updatedEnemies = new TreeSet<Enemy>();
+                for (Enemy e : this.enemies) {
+                    updatedEnemies.add(e);
+                }
+                this.enemies = updatedEnemies;
+
+                System.out.println("about to remove");
+                System.out.println(enemies.remove(enemy));
+//                enemies.remove(enemy);
             }
 
             if (lookupTile != null && nextEnemy != null && addNewEnemy) {
@@ -280,11 +287,13 @@ public class GameMap extends JPanel {
                     Tower tower = tile.getTower();
                     String type = "";
                     if (tower instanceof HomeBaseTower) {
-                        type = "Home Base";
+                        type = "ALMIGHTY COLORFUL BRICK";
                         text = type;
                     } else {
                         if (tower instanceof ShooterTower) {
                             type = "Shooter Tower";
+                        } else if (tower instanceof SniperTower) {
+                            type = "Sniper Tower";
                         }
 
                         text = type + " - " + "Level: " + tower.getLevel();
@@ -325,7 +334,7 @@ public class GameMap extends JPanel {
 
             this.infoLabel.setText(addTowerMessage + " - " + text + " - " + messageText);
         } else {
-            this.infoLabel.setText(addTowerMessage + " - " + "EMPTY TILE");
+            this.infoLabel.setText(addTowerMessage + " - " + "EMPTY TILE -");
         }
 
         repaint();
@@ -426,11 +435,11 @@ public class GameMap extends JPanel {
         double blueEnemyProb = 0.2;
 
         if (randomNum <= redEnemyProb) {
-            return new BasicEnemy(3, 50, Color.RED, chooseRandomPath(), MAP_SIZE);
+            return new BasicEnemy(4, 15, Color.RED, chooseRandomPath(), MAP_SIZE);
         } else if (randomNum >= (1 - blueEnemyProb)) {
-            return new BasicEnemy(2, 30, Color.BLUE, chooseRandomPath(), MAP_SIZE);
+            return new BasicEnemy(3, 10, Color.BLUE, chooseRandomPath(), MAP_SIZE);
         } else {
-            return new BasicEnemy(10, 10, Color.GREEN, chooseRandomPath(), MAP_SIZE);
+            return new BasicEnemy(2, 5, Color.GREEN, chooseRandomPath(), MAP_SIZE);
         }
     }
 
@@ -447,16 +456,20 @@ public class GameMap extends JPanel {
 
     private void updateCoins(int coins) {
         this.coinCount = coins;
-        this.coinsLabel.setText("Coins: " + coins);
+        this.coinsLabel.setText("- Coins: " + coins);
     }
 
     private void incrCoins() {
         updateCoins(this.coinCount + this.coinRate);
     }
 
+    public void setCoinRate(int coinRate) {
+        this.coinRate = coinRate;
+    }
+
     private void updateRounds(int round) {
         this.roundCount = round;
-        this.roundLabel.setText("Round: " + round);
+        this.roundLabel.setText("Round: " + round + " -");
     }
 
     private void updateTimer(int time) {
@@ -481,6 +494,9 @@ public class GameMap extends JPanel {
             switch (towerType) {
                 case "SHOOTER":
                     tower = new ShooterTower(this, MAP_SIZE, tile);
+                    break;
+                case "SNIPER":
+                    tower = new SniperTower(this, MAP_SIZE, tile);
                     break;
                 default:
                     break;
@@ -532,7 +548,6 @@ public class GameMap extends JPanel {
     public Enemy deqEnemyQueue() {
         Enemy enemy = this.enemyQueue.getFirst();
         this.enemyQueue.remove(enemy);
-        enemies.add(enemy);
         enemy.advancePath();
         return enemy;
     }

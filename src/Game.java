@@ -15,7 +15,38 @@ import javax.swing.*;
 public class Game implements Runnable {
 
     private final JFrame frame = new JFrame("Last Stand TD");
-    private String inputName = null;
+    public static final String INSTRUCTIONS_TEXT = "LAST STAND TOWER DEFENSE\nHOW TO PLAY:\n\n"
+            + "OBJECTIVE:\nLast Stand TD is an acrade style tower defense game. The objective "
+            + "is to survive for as many rounds as possible. That is, to keep enemies from "
+            + "reaching THE ALMIGHTY COLORFUL BRICK."
+            + "\n\nCONTROLS:\nThere will be buttons on the screen to allow players to interact"
+            + "with the map. There is no need for a keyboard."
+            + "\n\nSTARTING A NEW GAME:\nWhen a player begins a new game, they will be given "
+            + "a randomly generated map filled with open tiles (white) and block tiles (black)."
+            + " Every map will also come with three randomly generated paths by which enemies can "
+            + "traverse. Once a game has started, a round will immediately begin. "
+            + "\n\nROUNDS:\nEach round will send a wave of randomly chosen enemies. Note that "
+            + "enemies will only travel along open tiles and cannot traverse block paths. Rounds "
+            + "will increase in difficulty as player progresses. Following every round is a "
+            + "countdown timer for the next round. Players must act quickly!"
+            + "\n\nCOINS:\nWhenever a player is in a round, they will accumulate coins which "
+            + "they can use to purchase towers and tower upgrades."
+            + "\n\nTOWERS:\nAt any time, players may purchase towers to help them combat enemies."
+            + " Each tower has its own abilities, has an initial cost, and is upgradable "
+            + "(with the exception of the ALMIGHTY COLORFUL BRICK)."
+            + "\n\nLOSING:\nThere is no way to win the game as the objecive is to survive. Players "
+            + "who survive long enough may reach the top 10 scores and may enter their names to "
+            + "receive recognition. "
+            + "\n\nRESET:\nAt any time, players may reset their game. WARNING: Reseting a game "
+            + "will reset ALL PROGRESS in the current game including rounds survived, coins,"
+            + " towers, and etc." + "\n\nTYPES OF ENEMIES:\n"
+            + "Green Basic Enemy: hp: 5, speed: 2, basic enemy\n"
+            + "Blue Basic Enemy: hp: 10, speed: 3, basic enemy\n"
+            + "Red Basic Enemy: hp: 15, speed: 4, basic enemy" + "\n\nTYPES OF TOWERS:\n"
+            + "Shooter Tower:\n-Shoots bullets at fast rate\n"
+            + "-cost: 150, damage: 1, range: 150, time between shots: 1s"
+            + "\nSniper Tower:\n-Shoots high damage bullets at unlimited range\n"
+            + "-cost: 200, damage: 7, range: unlimited, time between shots: 10s";
 
     public void run() {
         // NOTE : recall that the 'final' keyword notes immutability even for local
@@ -60,11 +91,19 @@ public class Game implements Runnable {
 
         // Game Control Panel
         final JPanel game_panel = new JPanel();
+        final JPanel game_box = new JPanel();
+        game_box.setLayout(new BoxLayout(game_box, BoxLayout.PAGE_AXIS));
         final JButton addShooterTower = new JButton(
                 "Shooter Tower (-" + ShooterTower.INITIAL_COST + ")");
         addActionListenerTowerButton(gameMap, infoLabel, infoButton1, addShooterTower, "SHOOTER");
-
-        game_panel.add(addShooterTower);
+        final JButton addSniperTower = new JButton(
+                "Sniper Tower (-" + SniperTower.INITIAL_COST + ")");
+        addActionListenerTowerButton(gameMap, infoLabel, infoButton1, addSniperTower, "SNIPER");
+        game_box.add(addShooterTower);
+        game_box.add(Box.createRigidArea(new Dimension(0, 10)));
+        game_box.add(addSniperTower);
+        game_box.add(Box.createRigidArea(new Dimension(0, 10)));
+        game_panel.add(game_box);
 
         // Score Panel
         final JPanel score_panel = new JPanel();
@@ -82,11 +121,35 @@ public class Game implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 gameMap.clearAllInfoComps();
                 gameMap.setSelectedTower(null);
-                infoLabel.setText("GAME START!");
                 if (gameMap.gameNeedsReset()) {
-                    gameMap.reset();
+                    infoLabel.setText("NEED TO RESET!");
+                } else {
+                    infoLabel.setText("GAME START!");
+                    gameMap.startGame();
                 }
-                gameMap.startGame();
+            }
+        });
+        final JButton instructions = new JButton("HOW TO PLAY");
+        instructions.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gameMap.clearAllInfoComps();
+                gameMap.setSelectedTower(null);
+                infoLabel.setText("HOW TO PLAY");
+
+                JTextArea textArea = new JTextArea(20, 50);
+                textArea.setLineWrap(true);
+                textArea.setWrapStyleWord(true);
+//                textArea.setAutoscrolls(true);
+                textArea.setText(INSTRUCTIONS_TEXT);
+                textArea.setCaretPosition(0);
+                textArea.setEditable(false);
+                JScrollPane scroll = new JScrollPane(textArea,
+                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                JPanel textAreaScroll = new JPanel();
+                textAreaScroll.add(scroll);
+
+                JOptionPane.showMessageDialog(frame, textAreaScroll);
             }
         });
         final JPanel score_box = new JPanel();
@@ -94,6 +157,8 @@ public class Game implements Runnable {
         score_box.add(start);
         score_box.add(Box.createRigidArea(new Dimension(0, 10)));
         score_box.add(reset);
+        score_box.add(Box.createRigidArea(new Dimension(0, 10)));
+        score_box.add(instructions);
         score_box.add(Box.createRigidArea(new Dimension(0, 150)));
         JLabel highScoreLabel = new JLabel("---------------- HIGH SCORES ----------------");
         score_box.add(highScoreLabel);
@@ -213,10 +278,6 @@ public class Game implements Runnable {
         } catch (IOException e) {
         }
 
-        for (String[] entry : highScores) {
-            System.out.println(entry[0] + ", " + entry[1]);
-        }
-
         return selectionSortTop10(listToStringArr(highScores));
     }
 
@@ -316,8 +377,6 @@ public class Game implements Runnable {
                 lowestScore = -1;
             }
 
-            System.out.println("lowest score: " + lowestScore);
-
             if (newScore > lowestScore || highScores.length < 10) {
                 FileWriter testFileFound = null;
 
@@ -325,7 +384,6 @@ public class Game implements Runnable {
                     if (filePath != null) {
                         // Used to check if file found before deleting contents
                         testFileFound = new FileWriter(filePath, true);
-                        System.out.println("Length high scores: " + highScores.length);
                     }
                 } catch (FileNotFoundException e) {
                     testFileFound = null;
@@ -346,16 +404,19 @@ public class Game implements Runnable {
                                 buffWriter = new BufferedWriter(fileWriter);
 
                                 String inputName = JOptionPane.showInputDialog(frame,
-                                        "Please enter a username.", "Username",
+                                        "PLEASE ENTER YOUR NAME (no spaces)",
+                                        "CONGRATS! YOU REACHED THE TOP 10!",
                                         JOptionPane.PLAIN_MESSAGE);
+
+                                if (inputName == null || inputName.equals("")) {
+                                    inputName = "PLAYER";
+                                }
 
                                 newStringArr[newStringArr.length - 1][0] = inputName;
                                 newStringArr[newStringArr.length - 1][1] = "" + newScore;
 
                                 if (highScores.length > 0) {
                                     for (int i = 0; i < highScores.length; i++) {
-                                        System.out.println(
-                                                "newStringArr.length: " + newStringArr.length);
                                         newStringArr[i][0] = highScores[i][0];
                                         newStringArr[i][1] = highScores[i][1];
                                     }
