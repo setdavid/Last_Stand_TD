@@ -41,7 +41,7 @@ public class GameMap extends JPanel {
     private JLabel timerLabel;
     private Timer roundTimer;
     private int timeRemaining;
-    public static final int TIME_BETWEEN_ROUNDS = 1000;
+    public static final int TIME_BETWEEN_ROUNDS = 5000;
     private JLabel roundLabel;
     private int roundCount;
     private boolean roundInProgress;
