@@ -46,7 +46,9 @@ public class Game implements Runnable {
             + "Shooter Tower:\n-Shoots bullets at fast rate\n"
             + "-cost: 150, damage: 1, range: 150, time between shots: 1s"
             + "\nSniper Tower:\n-Shoots high damage bullets at unlimited range\n"
-            + "-cost: 200, damage: 7, range: unlimited, time between shots: 10s";
+            + "-cost: 200, damage: 7, range: unlimited, time between shots: 10s"
+            + "\nFarm Tower:\n-Generates coins every 5 seconds\n"
+            + "-cost: 1000, initial coin rate: 20 coins / 5 seconds";
 
     public void run() {
         // NOTE : recall that the 'final' keyword notes immutability even for local
@@ -99,9 +101,14 @@ public class Game implements Runnable {
         final JButton addSniperTower = new JButton(
                 "Sniper Tower (-" + SniperTower.INITIAL_COST + ")");
         addActionListenerTowerButton(gameMap, infoLabel, infoButton1, addSniperTower, "SNIPER");
+        final JButton addFarmTower = new JButton(
+                "Farm Tower (-" + FarmTower.INITIAL_COST + ")");
+        addActionListenerTowerButton(gameMap, infoLabel, infoButton1, addFarmTower, "FARM");
         game_box.add(addShooterTower);
         game_box.add(Box.createRigidArea(new Dimension(0, 10)));
         game_box.add(addSniperTower);
+        game_box.add(Box.createRigidArea(new Dimension(0, 10)));
+        game_box.add(addFarmTower);
         game_box.add(Box.createRigidArea(new Dimension(0, 10)));
         game_panel.add(game_box);
 

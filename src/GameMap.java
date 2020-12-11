@@ -41,7 +41,7 @@ public class GameMap extends JPanel {
     private JLabel timerLabel;
     private Timer roundTimer;
     private int timeRemaining;
-    public static final int TIME_BETWEEN_ROUNDS = 5000;
+    public static final int TIME_BETWEEN_ROUNDS = 10000;
     private JLabel roundLabel;
     private int roundCount;
     private boolean roundInProgress;
@@ -222,9 +222,7 @@ public class GameMap extends JPanel {
                 }
                 this.enemies = updatedEnemies;
 
-                System.out.println("about to remove");
-                System.out.println(enemies.remove(enemy));
-//                enemies.remove(enemy);
+                enemies.remove(enemy);
             }
 
             if (lookupTile != null && nextEnemy != null && addNewEnemy) {
@@ -294,6 +292,8 @@ public class GameMap extends JPanel {
                             type = "Shooter Tower";
                         } else if (tower instanceof SniperTower) {
                             type = "Sniper Tower";
+                        } else if (tower instanceof FarmTower) {
+                            type = "Farm Tower";
                         }
 
                         text = type + " - " + "Level: " + tower.getLevel();
@@ -373,6 +373,8 @@ public class GameMap extends JPanel {
             for (Tower tower : this.towers) {
                 if (tower instanceof AttackTower) {
                     ((AttackTower) tower).stopTower();
+                } else if (tower instanceof FarmTower) {
+                    ((FarmTower) tower).stopPay();
                 }
             }
         }
@@ -393,6 +395,10 @@ public class GameMap extends JPanel {
 
     public boolean gameNeedsReset() {
         return this.gameNeedsReset;
+    }
+
+    public boolean getRoundInProgress() {
+        return this.roundInProgress;
     }
 
     private void startNextRound() {
@@ -454,13 +460,17 @@ public class GameMap extends JPanel {
         }
     }
 
-    private void updateCoins(int coins) {
+    public void updateCoins(int coins) {
         this.coinCount = coins;
         this.coinsLabel.setText("- Coins: " + coins);
     }
 
     private void incrCoins() {
         updateCoins(this.coinCount + this.coinRate);
+    }
+
+    public int getCoinCoint() {
+        return this.coinCount;
     }
 
     public void setCoinRate(int coinRate) {
@@ -498,6 +508,9 @@ public class GameMap extends JPanel {
                 case "SNIPER":
                     tower = new SniperTower(this, MAP_SIZE, tile);
                     break;
+                case "FARM":
+                    tower = new FarmTower(this, MAP_SIZE, tile);
+                    break;
                 default:
                     break;
             }
@@ -528,6 +541,8 @@ public class GameMap extends JPanel {
 
             if (tower instanceof AttackTower) {
                 ((AttackTower) tower).stopTower();
+            } else if (tower instanceof FarmTower) {
+                ((FarmTower) tower).stopPay();
             }
 
             tile.setTower(null);
